@@ -77,6 +77,97 @@ def get_ansprechpartner_by_firma(firma_id):
 # -------------------------------------------------
 # TESTBLOCK (wird nur ausgeführt bei: python Außendienst.py)
 # -------------------------------------------------
+#if __name__ == "__main__":
+#    print("Starte Test...")
+#   print(get_alle_firmen())
+
+# -------------------------------------------------
+# CREAT-FUNKTIONEN FÜRS AUSSENDIENSTMODUL
+# -------------------------------------------------
+
+def create_firma(name, strasse, hausnummer, branche_id, ort_id):
+    """
+    Legt eine neue Firma in der Datenbank an.
+    
+    Parameter:
+    - name: Name der Firma
+    - strasse: Straßenname
+    - hausnummer: Hausnummer
+    - branche_id: Verweis auf die Branche (Fremdschlüssel)
+    - ort_id: Verweis auf den Ort (Fremdschlüssel)
+
+    Rückgabe:
+    - True/False oder Cursor-Objekt je nach Erfolg
+    """
+
+    # SQL-INSERT-Befehl: Fügt eine neue Firma in die Tabelle 'firma' ein
+    sql = """
+        INSERT INTO firma (name, strasse, hausnummer, branche_id, ort_id)
+        VALUES (%s, %s, %s, %s, %s)
+    """
+
+    # Parameter werden sauber & sicher an SQL übergeben (keine SQL-Injection möglich)
+    params = (name, strasse, hausnummer, branche_id, ort_id)
+
+    # Query ausführen → db.query macht automatisch commit()
+    return db.query(sql, params)
+
+def create_ansprechpartner(firma_id, anrede_id, vorname, nachname, email, telefon, position_id):
+    """
+    Legt einen neuen Ansprechpartner für eine Firma an.
+    
+    Parameter:
+    - firma_id: ID der Firma (FK)
+    - anrede_id: Anrede (Herr/Frau …)
+    - vorname: Vorname des Ansprechpartners
+    - nachname: Nachname
+    - email: Kontakt-E-Mail
+    - telefon: Telefonnummer
+    - position_id: Position/Titel (z. B. Geschäftsführer)
+
+    Rückgabe:
+    - True/False oder Cursor je nach Erfolg
+    """
+
+    sql = """
+        INSERT INTO ansprechpartner 
+            (firma_id, anrede_id, vorname, nachname, email, telefon, position_id)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+    """
+
+    params = (firma_id, anrede_id, vorname, nachname, email, telefon, position_id)
+
+    return db.query(sql, params)
+
+
+def create_lead(firma_id, ansprechpartner_id, beschreibung, status_id, erstellt_von):
+    """
+    Legt einen neuen Lead an.
+    
+    Parameter:
+    - firma_id: Firma, mit der der Lead verknüpft ist
+    - ansprechpartner_id: Ansprechpartner der Firma
+    - beschreibung: Beschreibung des Leads (Text)
+    - status_id: Lead-Status (z. B. neu, in Bearbeitung, gewonnen)
+    - erstellt_von: User-ID des Außendienstmitarbeiters
+
+    Rückgabe:
+    - True/False oder Cursor je nach Erfolg
+    """
+
+    sql = """
+        INSERT INTO lead (firma_id, ansprechpartner_id, beschreibung, status_id, erstellt_von)
+        VALUES (%s, %s, %s, %s, %s)
+    """
+
+    params = (firma_id, ansprechpartner_id, beschreibung, status_id, erstellt_von)
+
+    return db.query(sql, params)
+
 if __name__ == "__main__":
-    print("Starte Test...")
-    print(get_alle_firmen())
+    print("=== TEST: CREATE FIRMA ===")
+    result = create_firma("Testfirma GmbH", "Musterweg", "10", 1, 1)
+    print("Ergebnis:", result)
+
+
+
