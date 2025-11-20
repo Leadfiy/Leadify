@@ -1,12 +1,11 @@
+import flet as ft
+from registrierung import main as app_main
+
+
 def main():
-    print("Hello from leadify!")
+    #Entry point - launches the Flet app from registrierung.py
+    ft.app(target=app_main)
 
 
 if __name__ == "__main__":
     main()
-
-#uv Sync zum Installieren der .toml im Terminal
-
-import registrierung
-
-registrierung.registration()
