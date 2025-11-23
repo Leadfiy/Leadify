@@ -28,8 +28,11 @@ class Lead:
         self.erfasser_name = data.get('erfasser_name', 'Unbekannt')
         self.kunde_name = data.get('kunde_name', 'Unbekannt')
         self.produkt_name = data.get('produkt_name', 'Unbekannt')
+        self.produktgruppe_name = data.get('produktgruppe_name', 'Unbekannt')
+        self.produktzustand_name = data.get('produktzustand_name', 'Unbekannt')
         self.status_name = data.get('status_name', 'Offen')
         self.ansprechpartner_name = data.get('ansprechpartner_name', '')
+        self.ansprechpartner_position = data.get('ansprechpartner_position', '')
         self.kunde_email = data.get('kunde_email', '')
         self.kunde_telefon = data.get('kunde_telefon', '')
     
@@ -107,6 +110,7 @@ class LeadBearbeitungManager:
                 CONCAT(ap.vorname, ' ', ap.nachname) as ansprechpartner_name,
                 ap.email as kunde_email,
                 ap.telefon as kunde_telefon,
+                pos.bezeichnung as ansprechpartner_position,
                 p.produkt as produkt_name,
                 pg.produkt as produktgruppe_name,
                 s.status as status_name,
@@ -115,6 +119,7 @@ class LeadBearbeitungManager:
             LEFT JOIN benutzer b ON l.erfasser_id = b.benutzer_id
             LEFT JOIN ansprechpartner ap ON l.ansprechpartner_id = ap.id
             LEFT JOIN firma f ON ap.firma_id = f.id
+            LEFT JOIN position pos ON ap.position_id = pos.id
             LEFT JOIN produkte p ON l.produkt_id = p.produkt_id
             LEFT JOIN produktgruppe pg ON l.produktgruppe_id = pg.produkt_id
             LEFT JOIN status s ON l.status_id = s.id
@@ -265,7 +270,6 @@ class LeadBearbeitungView:
         self.page.clean()
         self.leads = self.lead_manager.get_my_leads(self.current_user['benutzer_id'])
     
-
         
         # Filter die Leads basierend auf aktiven Filtern
         filtered_leads = [lead for lead in self.leads if lead.status_id in self.active_filters]
@@ -496,10 +500,12 @@ class LeadDetailView:
                     ft.Text("Lead-Informationen", size=18, weight=ft.FontWeight.BOLD),
                     ft.Text(f"Firma: {self.lead.kunde_name}"),
                     ft.Text(f"Ansprechpartner: {self.lead.ansprechpartner_name}"),
+                    ft.Text(f"Position: {self.lead.ansprechpartner_position}"),
                     ft.Text(f"E-Mail: {self.lead.kunde_email}"),
                     ft.Text(f"Telefon: {self.lead.kunde_telefon}"),
                     ft.Divider(height=10),
-                    ft.Text(f"Produkt: {self.lead.produkt_name}"),
+                    ft.Text(f"Produktgruppe: {self.lead.produktgruppe_name}"),
+                    ft.Text(f"Produkt: {self.lead.produkt_name} ({self.lead.produktzustand_name})"),
                     ft.Text(f"Status: {self.lead.status_name}"),
                     ft.Text(f"Erfasst von: {self.lead.erfasser_name}"),
                     ft.Text(f"Datum: {self.lead.datum_erfasst}"),
@@ -971,6 +977,7 @@ class LeadDetailView:
                     ft.Text("Kundeninfos", size=14, weight=ft.FontWeight.BOLD),
                     ft.Text(f"Firma: {self.lead.kunde_name}"),
                     ft.Text(f"Ansprechpartner: {self.lead.ansprechpartner_name}"),
+                    ft.Text(f"Position: {self.lead.ansprechpartner_position}"),
                     ft.Text(f"E-Mail: {self.lead.kunde_email}"),
                     ft.Text(f"Telefon: {self.lead.kunde_telefon}"),
                 ]),
@@ -982,10 +989,10 @@ class LeadDetailView:
         leaddaten = ft.Card(
             content=ft.Container(
                 content=ft.Column([
-                    ft.Text("Lead-Daten", size=14, weight=ft.FontWeight.BOLD),
+                    ft.Text("Bedarfsinformation", size=14, weight=ft.FontWeight.BOLD),
                     ft.Text(f"Lead ID: {self.lead.lead_id}"),
-                    ft.Text(f"Produkt: {self.lead.produkt_name}"),
-                    ft.Text(f"Status: {self.lead.status_name}"),
+                    ft.Text(f"Produktgruppe: {self.lead.produktgruppe_name}"),
+                    ft.Text(f"Produkt: {self.lead.produkt_name} ({self.lead.produktzustand_name})"),
                     ft.Text(f"Erfasst von: {self.lead.erfasser_name}"),
                     ft.Text(f"Datum: {self.lead.datum_erfasst}"),
                 ]),
@@ -1041,6 +1048,7 @@ class LeadDetailView:
                     ft.Text("Kundeninfos", size=14, weight=ft.FontWeight.BOLD),
                     ft.Text(f"Firma: {self.lead.kunde_name}"),
                     ft.Text(f"Ansprechpartner: {self.lead.ansprechpartner_name}"),
+                    ft.Text(f"Position: {self.lead.ansprechpartner_position}"),
                     ft.Text(f"E-Mail: {self.lead.kunde_email}"),
                     ft.Text(f"Telefon: {self.lead.kunde_telefon}"),
                 ]),
@@ -1054,8 +1062,8 @@ class LeadDetailView:
                 content=ft.Column([
                     ft.Text("Bedarfsinformation", size=14, weight=ft.FontWeight.BOLD),
                     ft.Text(f"Lead ID: {self.lead.lead_id}"),
-                    ft.Text(f"Produkt: {self.lead.produkt_name}"),
-                    ft.Text(f"Produktgruppe: {self.lead.status_name}"),
+                    ft.Text(f"Produktgruppe: {self.lead.produktgruppe_name}"),
+                    ft.Text(f"Produkt: {self.lead.produkt_name} ({self.lead.produktzustand_name})"),
                     ft.Text(f"Erfasst von: {self.lead.erfasser_name}"),
                     ft.Text(f"Datum: {self.lead.datum_erfasst}"),
                 ]),
