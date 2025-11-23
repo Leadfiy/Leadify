@@ -2,6 +2,7 @@ import flet as ft
 from db_config import db_host, db_user, db_password, db_databse, db_port
 import database
 from auth_manager import AuthManager
+from lead_bearbeitung import LeadBearbeitungManager, LeadBearbeitungView
 
 
 class AppController:
@@ -12,9 +13,10 @@ class AppController:
         self.db = db
         self.auth = AuthManager(db)
         self.current_user = None
+        self.lead_bearbeitung_view = None  # Speichere Lead-View für persistente Filter
         
         # Page-Konfiguration
-        self.page.title = "Firmen-App"
+        self.page.title = "Leadify"
         self.page.vertical_alignment = ft.MainAxisAlignment.CENTER
         self.page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
         self.page.padding = 20
@@ -32,26 +34,164 @@ class AppController:
             self.show_login_screen()
     
     def show_main_app(self):
-        """Zeigt die Hauptanwendung nach erfolgreichem Login"""
+        """Zeigt das Hauptmenü nach erfolgreichem Login"""
         self.page.clean()
+        self.page.vertical_alignment = ft.MainAxisAlignment.START
+        self.page.horizontal_alignment = ft.CrossAxisAlignment.START
         
+        # Hamburger Menü
+        menu_drawer = ft.NavigationDrawer(
+            controls=[
+                ft.Container(height=10),
+                ft.ListTile(
+                    title=ft.Text(f"Willkommen, {self.current_user.get('vorname', 'Benutzer')}!"),
+                    subtitle=ft.Text(self.current_user.get('email', '')),
+                ),
+                ft.Divider(),
+                ft.ListTile(
+                    leading=ft.Icon(ft.Icons.INBOX),
+                    title=ft.Text("Meine Nachrichten"),
+                    on_click=lambda e: self._show_leads()
+                ),
+                ft.ListTile(
+                    leading=ft.Icon(ft.Icons.ADD_CIRCLE),
+                    title=ft.Text("Lead erstellen"),
+                    on_click=lambda e: self._show_create_lead_placeholder()
+                ),
+                ft.Divider(),
+                ft.ListTile(
+                    leading=ft.Icon(ft.Icons.LOGOUT),
+                    title=ft.Text("Abmelden"),
+                    on_click=self._handle_logout
+                ),
+            ]
+        )
+        
+        self.page.drawer = menu_drawer
+        
+        # Willkommensbildschirm
         username = self.current_user.get('vorname') or self.current_user.get('email')
         
         self.page.add(
-            ft.Column([
-                ft.Text(f"Willkommen, {username}!", 
-                       size=24, weight=ft.FontWeight.BOLD),
-                ft.Text(f"E-Mail: {self.current_user['email']}", color="grey"),
-                ft.Text(f"Rolle ID: {self.current_user['rolle_id']}", color="grey"),
-                ft.Divider(height=30),
-                ft.ElevatedButton(
-                    "Abmelden",
-                    icon=ft.Icons.LOGOUT,
-                    on_click=self._handle_logout
-                )
-            ],
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER)
+            ft.Container(
+                content=ft.Column([
+                    # Header mit Hamburger-Button
+                    ft.Row([
+                        ft.IconButton(
+                            icon=ft.Icons.MENU,
+                            icon_size=30,
+                            on_click=lambda e: self._toggle_drawer()
+                        ),
+                        ft.Text("Leadify", size=24, weight=ft.FontWeight.BOLD, expand=True),
+                        ft.Icon(ft.Icons.ACCOUNT_CIRCLE, size=30)
+                    ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+                    
+                    ft.Divider(),
+                    
+                    # Willkommenstext
+                    ft.Container(
+                        content=ft.Column([
+                            ft.Text("Willkommen zu Leadify!", size=28, weight=ft.FontWeight.BOLD),
+                            ft.Text(f"Hallo {username}", size=18, color="grey"),
+                            ft.Divider(height=40, color="transparent"),
+                            ft.Text("Was möchtest du heute tun?", size=16, weight=ft.FontWeight.W_500),
+                        ], spacing=10),
+                        padding=20
+                    ),
+                    
+                    ft.Divider(height=20, color="transparent"),
+                    
+                    # Schnellzugriff-Buttons
+                    ft.Column([
+                        ft.ElevatedButton(
+                            content=ft.Column([
+                                ft.Icon(ft.Icons.INBOX, size=40),
+                                ft.Text("Meine Nachrichten", size=16, weight=ft.FontWeight.W_500),
+                                ft.Text("Bearbeite deine Leads", size=12, color="grey")
+                            ], spacing=5, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                            width=300,
+                            height=120,
+                            on_click=lambda e: self._show_leads()
+                        ),
+                        
+                        ft.ElevatedButton(
+                            content=ft.Column([
+                                ft.Icon(ft.Icons.ADD_CIRCLE, size=40),
+                                ft.Text("Lead erstellen", size=16, weight=ft.FontWeight.W_500),
+                                ft.Text("Neuen Lead hinzufügen", size=12, color="grey")
+                            ], spacing=5, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                            width=300,
+                            height=120,
+                            on_click=lambda e: self._show_create_lead_placeholder()
+                        ),
+                    ], spacing=15, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                ], expand=True),
+                padding=20
+            )
         )
+    
+    def _toggle_drawer(self):
+        """Öffnet/Schließt das Hamburger-Menü"""
+        self.page.drawer.open = not self.page.drawer.open
+        self.page.update()
+    
+    def _show_leads(self):
+        """Zeigt die Lead-Bearbeitung UI"""
+        self.page.drawer.open = False
+        self.page.update()
+        
+        self.page.clean()
+        
+        # Lead-Bearbeitung Manager initialisieren
+        lead_manager = LeadBearbeitungManager(self.db)
+        
+        # Erstelle die View nur beim ersten Mal, danach wiederverwenden
+        if self.lead_bearbeitung_view is None:
+            self.lead_bearbeitung_view = LeadBearbeitungView(self.page, lead_manager, self.current_user)
+            self.lead_bearbeitung_view.app_controller = self  # Referenz zum Controller für Navigation
+        else:
+            # Update Manager und Page
+            self.lead_bearbeitung_view.lead_manager = lead_manager
+            self.lead_bearbeitung_view.page = self.page
+        
+        self.lead_bearbeitung_view.render()
+    
+    def _show_create_lead_placeholder(self):
+        """Zeigt Placeholder für Lead-Erstellung (noch nicht implementiert)"""
+        self.page.drawer.open = False
+        self.page.clean()
+        
+        self.page.add(
+            ft.Container(
+                content=ft.Column([
+                    ft.Row([
+                        ft.IconButton(
+                            icon=ft.Icons.ARROW_BACK,
+                            on_click=lambda e: self.show_main_app()
+                        ),
+                        ft.Text("Lead erstellen", size=24, weight=ft.FontWeight.BOLD),
+                    ]),
+                    ft.Divider(),
+                    
+                    ft.Container(
+                        content=ft.Column([
+                            ft.Icon(ft.Icons.CONSTRUCTION, size=64, color="orange"),
+                            ft.Text("Funktion noch nicht implementiert", size=18, weight=ft.FontWeight.BOLD),
+                            ft.Text("Die Lead-Erstellung ist derzeit noch in Entwicklung.", size=14, color="grey"),
+                            ft.Divider(height=30, color="transparent"),
+                            ft.ElevatedButton(
+                                "Zurück zum Menü",
+                                icon=ft.Icons.ARROW_BACK,
+                                on_click=lambda e: self.show_main_app()
+                            )
+                        ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=10),
+                        padding=40
+                    )
+                ], expand=True),
+                padding=20
+            )
+        )
+
     
     def show_pending_approval(self):
         """Zeigt Wartebildschirm für Admin-Freigabe"""
@@ -220,11 +360,19 @@ class AppController:
             ],
             horizontal_alignment=ft.CrossAxisAlignment.CENTER)
         )
-    
+
     def _handle_logout(self, e):
         """Private Methode für Logout-Logik"""
+        # Hamburger-Menü schließen
+        if self.page.drawer:
+            self.page.drawer.open = False
+            self.page.update()
+        
+        # Logout durchführen
         self.auth.logout()
         self.current_user = None
+        
+        # Zur Login-Seite navigieren
         self.show_login_screen()
 
 
@@ -242,7 +390,3 @@ def main(page: ft.Page):
     # App-Controller initialisieren und starten
     app = AppController(page, db)
     app.start()
-
-
-# App starten
-ft.app(target=main)
