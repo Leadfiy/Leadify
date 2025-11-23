@@ -565,8 +565,17 @@ class LeadDetailView:
         for aktion in self.aktionen:
             # Aktion-Typ für Anzeige anpassen
             typ_anzeige = aktion.aktion_typ
-            if aktion.aktion_typ == 'zugewiesen':
-                typ_anzeige = 'weitergeleitet'
+            
+            # Mapping für bessere Darstellung -> überprüft die Stati aus der Datenbank
+            aktion_mapping = {
+                'zugewiesen': 'weitergeleitet',
+                'erledigt': 'erledigt',
+                'angenommen': 'angenommen',
+                'abgelehnt': 'abgelehnt',
+                'Angebot erstellt': 'Angebot erstellt'
+            }
+            
+            typ_anzeige = aktion_mapping.get(aktion.aktion_typ, aktion.aktion_typ)
             
             verlauf_items.append(
                 ft.ListTile(
@@ -582,12 +591,16 @@ class LeadDetailView:
         ])
     
     def _build_kommentar_section(self):
-        """Kommentar-Bereich (ohne Benutzer-Zuordnung)"""
+        """Kommentar-Bereich (nur für aktive Leads - Status 1 oder 2)"""
+        # Kommentare sind nur für aktive Leads verfügbar (Status 1 oder 2)
+        is_active = self.lead.status_id in [1, 2]
+        
         kommentar_field = ft.TextField(
             label="Neuer Kommentar",
             multiline=True,
             min_lines=2,
-            max_lines=4
+            max_lines=4,
+            disabled=not is_active  # Deaktiviert für erledigte Leads
         )
         
         def add_kommentar(e):
@@ -614,11 +627,19 @@ class LeadDetailView:
                 )
             )
         
+        # Button-Beschriftung je nach Status
+        button_text = "Kommentar hinzufügen" if is_active else "Lead abgeschlossen - keine Kommentare möglich"
+        button_disabled = not is_active
+        
         return ft.Column([
             ft.Text("Kommentare", size=18, weight=ft.FontWeight.BOLD),
             ft.Column(kommentar_liste) if kommentar_liste else ft.Text("Keine Kommentare", color="grey"),
-            kommentar_field,
-            ft.ElevatedButton("Kommentar hinzufügen", on_click=add_kommentar)
+            kommentar_field if is_active else ft.Container(),  # Kommentarfeld nur für aktive Leads
+            ft.ElevatedButton(
+                button_text,
+                on_click=add_kommentar,
+                disabled=button_disabled
+            )
         ])
     
     # ---- Action Handlers ----
@@ -674,16 +695,19 @@ class LeadDetailView:
             self.page.close(dialog)
             self._show_besuchsbericht_dialog()
         
+        def on_angebot(e):
+            """Öffnet Dialog für "Angebot erstellen" Option"""
+            self.page.close(dialog)
+            self._show_angebot_dialog()
+        
         def on_option_click(option_type):
             def handler(e):
                 if option_type == "comment":
                     on_accept_with_comment(e)
                 elif option_type == "report":
                     on_besuchsbericht(e)
-                else:
-                    # TODO: Implementiere Funktionalität für:
-                    # - "offer": Angebot erstellen
-                    self.page.close(dialog)
+                elif option_type == "offer":
+                    on_angebot(e)
             return handler
         
         dialog = ft.AlertDialog(
@@ -986,12 +1010,84 @@ class LeadDetailView:
         
         self.page.open(dialog)
     
+    def _show_angebot_dialog(self):
+        """Zeigt Angebot-Dialog mit Kundendaten und Lead-Daten (Bedarfsinformation)"""
+        def submit_angebot(e):
+            # Lead auf "Angebot erstellt" (5) setzen mit Kommentar "Angebot erstellt"
+            sql = "UPDATE lead SET status_id = 5 WHERE lead_id = ?"
+            result = self.lead_manager.db.query(sql, (self.lead.lead_id,))
+            
+            if result:
+                # Aktion loggen
+                self.lead_manager.log_aktion(
+                    self.lead.lead_id,
+                    self.current_user['benutzer_id'],
+                    'angebot_erstellt',
+                    None,
+                    'Angebot erstellt'
+                )
+                # Kommentar hinzufügen
+                self.lead_manager.add_kommentar(
+                    self.lead.lead_id,
+                    "Angebot erstellt"
+                )
+                self.page.close(dialog)
+                self.render()
+        
+        # Kundeninfos Section
+        kundeninfos = ft.Card(
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Text("Kundeninfos", size=14, weight=ft.FontWeight.BOLD),
+                    ft.Text(f"Firma: {self.lead.kunde_name}"),
+                    ft.Text(f"Ansprechpartner: {self.lead.ansprechpartner_name}"),
+                    ft.Text(f"E-Mail: {self.lead.kunde_email}"),
+                    ft.Text(f"Telefon: {self.lead.kunde_telefon}"),
+                ]),
+                padding=12
+            )
+        )
+        
+        # Lead-Daten (Bedarfsinformation) Section
+        bedarfsinfo = ft.Card(
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Text("Bedarfsinformation", size=14, weight=ft.FontWeight.BOLD),
+                    ft.Text(f"Lead ID: {self.lead.lead_id}"),
+                    ft.Text(f"Produkt: {self.lead.produkt_name}"),
+                    ft.Text(f"Produktgruppe: {self.lead.status_name}"),
+                    ft.Text(f"Erfasst von: {self.lead.erfasser_name}"),
+                    ft.Text(f"Datum: {self.lead.datum_erfasst}"),
+                ]),
+                padding=12
+            )
+        )
+        
+        dialog = ft.AlertDialog(
+            title=ft.Text("Angebot erstellen"),
+            content=ft.Column([
+                ft.Text("Kundendetails und Bedarfsinformation:", size=12),
+                kundeninfos,
+                bedarfsinfo,
+                ft.Text("Der Lead wird als 'Angebot erstellt' markiert.", 
+                       size=11, color="grey", italic=True)
+            ], spacing=10, scroll=ft.ScrollMode.AUTO),
+            actions=[
+                ft.TextButton("Abbrechen", on_click=lambda e: self.page.close(dialog)),
+                ft.TextButton("Angebot erstellen", on_click=submit_angebot)
+            ]
+        )
+        
+        self.page.open(dialog)
+    
     def _get_aktion_icon(self, aktion_typ: str):
         """Gibt passendes Icon für Aktion zurück"""
         icons = {
             'angenommen': ft.Icons.CHECK_CIRCLE,
             'abgelehnt': ft.Icons.CANCEL,
-            'zugewiesen': ft.Icons.FORWARD  # statt 'weitergeleitet'
+            'zugewiesen': ft.Icons.FORWARD,
+            'erledigt': ft.Icons.DONE_ALL,
+            'angebot_erstellt': ft.Icons.DESCRIPTION
         }
         return icons.get(aktion_typ, ft.Icons.INFO)
     
