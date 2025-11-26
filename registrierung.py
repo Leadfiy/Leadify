@@ -1,8 +1,13 @@
 import flet as ft
-from db_config import db_host, db_user, db_password, db_databse, db_port
+from db_config import db_host,db_user,db_password,db_port,db_database
 import database
 from auth_manager import AuthManager
 from lead_bearbeitung import LeadBearbeitungManager, LeadBearbeitungView
+
+# ========== NEU: Außendienst-Imports ==========
+from Außendienst import AussendienstManager
+from aussendienst_view import AussendienstView
+# ==============================================
 
 
 class AppController:
@@ -14,6 +19,11 @@ class AppController:
         self.auth = AuthManager(db)
         self.current_user = None
         self.lead_bearbeitung_view = None  # Speichere Lead-View für persistente Filter
+        
+        # ========== NEU: Außendienst-Manager ==========
+        self.aussendienst_manager = AussendienstManager(db)
+        self.aussendienst_view = None  # Speichere Außendienst-View
+        # ==============================================
         
         # Page-Konfiguration
         self.page.title = "Leadify"
@@ -56,7 +66,7 @@ class AppController:
                 ft.ListTile(
                     leading=ft.Icon(ft.Icons.ADD_CIRCLE),
                     title=ft.Text("Lead erstellen"),
-                    on_click=lambda e: self._show_create_lead_placeholder()
+                    on_click=lambda e: self._show_create_lead()  # <-- GEÄNDERT
                 ),
                 ft.Divider(),
                 ft.ListTile(
@@ -122,7 +132,7 @@ class AppController:
                             ], spacing=5, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
                             width=300,
                             height=120,
-                            on_click=lambda e: self._show_create_lead_placeholder()
+                            on_click=lambda e: self._show_create_lead()  # <-- GEÄNDERT
                         ),
                     ], spacing=15, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
                 ], expand=True),
@@ -156,41 +166,29 @@ class AppController:
         
         self.lead_bearbeitung_view.render()
     
-    def _show_create_lead_placeholder(self):
-        """Zeigt Placeholder für Lead-Erstellung (noch nicht implementiert)"""
+    # ========== NEU: Außendienst-Methode (ersetzt Placeholder) ==========
+    def _show_create_lead(self):
+        """Zeigt Außendienst-Ansicht für Lead-Erstellung"""
         self.page.drawer.open = False
+        self.page.update()
+        
         self.page.clean()
         
-        self.page.add(
-            ft.Container(
-                content=ft.Column([
-                    ft.Row([
-                        ft.IconButton(
-                            icon=ft.Icons.ARROW_BACK,
-                            on_click=lambda e: self.show_main_app()
-                        ),
-                        ft.Text("Lead erstellen", size=24, weight=ft.FontWeight.BOLD),
-                    ]),
-                    ft.Divider(),
-                    
-                    ft.Container(
-                        content=ft.Column([
-                            ft.Icon(ft.Icons.CONSTRUCTION, size=64, color="orange"),
-                            ft.Text("Funktion noch nicht implementiert", size=18, weight=ft.FontWeight.BOLD),
-                            ft.Text("Die Lead-Erstellung ist derzeit noch in Entwicklung.", size=14, color="grey"),
-                            ft.Divider(height=30, color="transparent"),
-                            ft.ElevatedButton(
-                                "Zurück zum Menü",
-                                icon=ft.Icons.ARROW_BACK,
-                                on_click=lambda e: self.show_main_app()
-                            )
-                        ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=10),
-                        padding=40
-                    )
-                ], expand=True),
-                padding=20
+        # Erstelle die View nur beim ersten Mal, danach wiederverwenden
+        if self.aussendienst_view is None:
+            self.aussendienst_view = AussendienstView(
+                self.page, 
+                self.aussendienst_manager, 
+                self.current_user
             )
-        )
+            self.aussendienst_view.app_controller = self  # Referenz zum Controller für Navigation
+        else:
+            # Update Manager und Page
+            self.aussendienst_view.manager = self.aussendienst_manager
+            self.aussendienst_view.page = self.page
+        
+        self.aussendienst_view.render()
+    # ====================================================================
 
     
     def show_pending_approval(self):
@@ -383,7 +381,7 @@ def main(page: ft.Page):
         host=db_host,
         user=db_user,
         password=db_password,
-        database=db_databse,
+        database=db_database,
         port=db_port
     )
     
