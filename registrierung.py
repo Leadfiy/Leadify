@@ -31,7 +31,7 @@ class AppController:
             self.current_user = user_data
             
             # Prüfe Rolle: Admin (rolle_id = 1) oder normaler User (rolle_id = 2)
-            if user_data.get('rolle_id') == 1:
+            if int(user_data.get('rolle_id')) == 1:
                 self.show_admin_menu()  # Admin-Dashboard
             else:
                 self.show_main_app()    # Normales User-Dashboard
@@ -378,7 +378,7 @@ class AppController:
                 self.current_user = user_data
                 
                 # Prüfe Rolle und leite entsprechend weiter
-                if user_data.get('rolle_id') == 1:
+                if int(user_data.get('rolle_id')) == 1:
                     self.show_admin_menu()  # Admin
                 else:
                     self.show_main_app()    # Normaler User
