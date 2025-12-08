@@ -3,6 +3,8 @@ from db_config import db_host, db_user, db_password, db_databse, db_port
 import database
 from auth_manager import AuthManager
 from lead_bearbeitung import LeadBearbeitungManager, LeadBearbeitungView
+from admin_menu import AdminMenuView
+from lead_loeschen import LeadLoeschenView
 
 
 class AppController:
@@ -27,14 +29,40 @@ class AppController:
         
         if is_logged_in:
             self.current_user = user_data
-            self.show_main_app()
+            
+            # Prüfe Rolle: Admin (rolle_id = 1) oder normaler User (rolle_id = 2)
+            if user_data.get('rolle_id') == 1:
+                self.show_admin_menu()  # Admin-Dashboard
+            else:
+                self.show_main_app()    # Normales User-Dashboard
+                
         elif "Warte noch auf Admin-Freigabe" in message:
             self.show_pending_approval()
         else:
             self.show_login_screen()
     
+    def show_admin_menu(self):
+        """Zeigt das Admin-Hauptmenü"""
+        self.page.clean()
+        self.page.vertical_alignment = ft.MainAxisAlignment.START
+        self.page.horizontal_alignment = ft.CrossAxisAlignment.START
+        self.page.padding = 0
+        
+        admin_view = AdminMenuView(self.page, self.current_user, self)
+        admin_view.render()
+    
+    def show_delete_leads(self):
+        """Zeigt die Lead-Löschungs-Ansicht"""
+        self.page.clean()
+        self.page.vertical_alignment = ft.MainAxisAlignment.START
+        self.page.horizontal_alignment = ft.CrossAxisAlignment.START
+        self.page.padding = 0
+        
+        delete_view = LeadLoeschenView(self.page, self.db, self.current_user, self)
+        delete_view.render()
+    
     def show_main_app(self):
-        """Zeigt das Hauptmenü nach erfolgreichem Login"""
+        """Zeigt das Hauptmenü nach erfolgreichem Login (für normale User)"""
         self.page.clean()
         self.page.vertical_alignment = ft.MainAxisAlignment.START
         self.page.horizontal_alignment = ft.CrossAxisAlignment.START
@@ -201,7 +229,11 @@ class AppController:
             is_logged_in, user_data, message = self.auth.check_auto_login()
             if is_logged_in:
                 self.current_user = user_data
-                self.show_main_app()
+                # Prüfe Rolle und leite entsprechend weiter
+                if user_data.get('rolle_id') == 1:
+                    self.show_admin_menu()
+                else:
+                    self.show_main_app()
             else:
                 status_text.value = message
                 self.page.update()
@@ -311,6 +343,9 @@ class AppController:
     def show_login_screen(self):
         """Zeigt Login-Formular"""
         self.page.clean()
+        self.page.vertical_alignment = ft.MainAxisAlignment.CENTER
+        self.page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+        self.page.padding = 20
         
         email_field = ft.TextField(
             label="E-Mail-Adresse",
@@ -341,7 +376,12 @@ class AppController:
             
             if success:
                 self.current_user = user_data
-                self.show_main_app()
+                
+                # Prüfe Rolle und leite entsprechend weiter
+                if user_data.get('rolle_id') == 1:
+                    self.show_admin_menu()  # Admin
+                else:
+                    self.show_main_app()    # Normaler User
             else:
                 status_text.value = message
                 status_text.color = "red"
