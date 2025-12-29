@@ -9,6 +9,15 @@ from Außendienst import AussendienstManager
 from aussendienst_view import AussendienstView
 # ==============================================
 
+# ========== Admin-Imports ==========
+from admin_menu import AdminMenuView
+from lead_loeschen import LeadLoeschenView
+# ====================================
+
+# ========== Auswertungs-Imports ==========
+from auswertung import AuswertungManager, AuswertungView
+# =========================================
+
 
 class AppController:
     """Hauptsteuerung der Anwendung - verwaltet Navigation und Benutzer-Status"""
@@ -24,6 +33,11 @@ class AppController:
         self.aussendienst_manager = AussendienstManager(db)
         self.aussendienst_view = None  # Speichere Außendienst-View
         # ==============================================
+        
+        # ========== Auswertungs-Manager ==========
+        self.auswertung_manager = AuswertungManager(db)
+        self.auswertung_view = None  # Speichere Auswertungs-View
+        # ==========================================
         
         # Page-Konfiguration
         self.page.title = "Leadify"
@@ -45,37 +59,61 @@ class AppController:
     
     def show_main_app(self):
         """Zeigt das Hauptmenü nach erfolgreichem Login"""
+        # Rollenüberprüfung: Admin (rolle_id = 0) zum Admin-Menü weiterleiten
+        if self.current_user and self.current_user.get('rolle_id') == 0:
+            self.show_admin_menu()
+            return
+        
+        # Rollenüberprüfung: Auswertungs-Benutzer (rolle_id = 4) direkt zur Auswertung
+        if self.current_user and self.current_user.get('rolle_id') == 4:
+            self.show_auswertung_menu()
+            return
+        
         self.page.clean()
         self.page.vertical_alignment = ft.MainAxisAlignment.START
         self.page.horizontal_alignment = ft.CrossAxisAlignment.START
         
         # Hamburger Menü
-        menu_drawer = ft.NavigationDrawer(
-            controls=[
-                ft.Container(height=10),
-                ft.ListTile(
-                    title=ft.Text(f"Willkommen, {self.current_user.get('vorname', 'Benutzer')}!"),
-                    subtitle=ft.Text(self.current_user.get('email', '')),
-                ),
+        menu_controls = [
+            ft.Container(height=10),
+            ft.ListTile(
+                title=ft.Text(f"Willkommen, {self.current_user.get('vorname', 'Benutzer')}!"),
+                subtitle=ft.Text(self.current_user.get('email', '')),
+            ),
+            ft.Divider(),
+            ft.ListTile(
+                leading=ft.Icon(ft.Icons.INBOX),
+                title=ft.Text("Meine Nachrichten"),
+                on_click=lambda e: self._show_leads()
+            ),
+            ft.ListTile(
+                leading=ft.Icon(ft.Icons.ADD_CIRCLE),
+                title=ft.Text("Lead erstellen"),
+                on_click=lambda e: self._show_create_lead()
+            ),
+        ]
+        
+        # Auswertungs-Option nur für rolle_id = 4 anzeigen
+        if self.current_user and self.current_user.get('rolle_id') == 4:
+            menu_controls.extend([
                 ft.Divider(),
                 ft.ListTile(
-                    leading=ft.Icon(ft.Icons.INBOX),
-                    title=ft.Text("Meine Nachrichten"),
-                    on_click=lambda e: self._show_leads()
+                    leading=ft.Icon(ft.Icons.ANALYTICS),
+                    title=ft.Text("Auswertung"),
+                    on_click=lambda e: self._show_auswertung()
                 ),
-                ft.ListTile(
-                    leading=ft.Icon(ft.Icons.ADD_CIRCLE),
-                    title=ft.Text("Lead erstellen"),
-                    on_click=lambda e: self._show_create_lead()  # <-- GEÄNDERT
-                ),
-                ft.Divider(),
-                ft.ListTile(
-                    leading=ft.Icon(ft.Icons.LOGOUT),
-                    title=ft.Text("Abmelden"),
-                    on_click=self._handle_logout
-                ),
-            ]
-        )
+            ])
+        
+        menu_controls.extend([
+            ft.Divider(),
+            ft.ListTile(
+                leading=ft.Icon(ft.Icons.LOGOUT),
+                title=ft.Text("Abmelden"),
+                on_click=self._handle_logout
+            ),
+        ])
+        
+        menu_drawer = ft.NavigationDrawer(controls=menu_controls)
         
         self.page.drawer = menu_drawer
         
@@ -111,30 +149,8 @@ class AppController:
                     
                     ft.Divider(height=20, color="transparent"),
                     
-                    # Schnellzugriff-Buttons
-                    ft.Column([
-                        ft.ElevatedButton(
-                            content=ft.Column([
-                                ft.Icon(ft.Icons.INBOX, size=40),
-                                ft.Text("Meine Nachrichten", size=16, weight=ft.FontWeight.W_500),
-                                ft.Text("Bearbeite deine Leads", size=12, color="grey")
-                            ], spacing=5, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
-                            width=300,
-                            height=120,
-                            on_click=lambda e: self._show_leads()
-                        ),
-                        
-                        ft.ElevatedButton(
-                            content=ft.Column([
-                                ft.Icon(ft.Icons.ADD_CIRCLE, size=40),
-                                ft.Text("Lead erstellen", size=16, weight=ft.FontWeight.W_500),
-                                ft.Text("Neuen Lead hinzufügen", size=12, color="grey")
-                            ], spacing=5, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
-                            width=300,
-                            height=120,
-                            on_click=lambda e: self._show_create_lead()  # <-- GEÄNDERT
-                        ),
-                    ], spacing=15, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                    # Schnellzugriff-Buttons - dynamisch je nach Rolle
+                    self._create_quick_access_buttons(),
                 ], expand=True),
                 padding=20
             )
@@ -144,6 +160,50 @@ class AppController:
         """Öffnet/Schließt das Hamburger-Menü"""
         self.page.drawer.open = not self.page.drawer.open
         self.page.update()
+    
+    def _create_quick_access_buttons(self):
+        """Erstellt Schnellzugriff-Buttons basierend auf Benutzerrolle"""
+        buttons = [
+            ft.ElevatedButton(
+                content=ft.Column([
+                    ft.Icon(ft.Icons.INBOX, size=40),
+                    ft.Text("Meine Nachrichten", size=16, weight=ft.FontWeight.W_500),
+                    ft.Text("Bearbeite deine Leads", size=12, color="grey")
+                ], spacing=5, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                width=300,
+                height=120,
+                on_click=lambda e: self._show_leads()
+            ),
+            ft.ElevatedButton(
+                content=ft.Column([
+                    ft.Icon(ft.Icons.ADD_CIRCLE, size=40),
+                    ft.Text("Lead erstellen", size=16, weight=ft.FontWeight.W_500),
+                    ft.Text("Neuen Lead hinzufügen", size=12, color="grey")
+                ], spacing=5, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                width=300,
+                height=120,
+                on_click=lambda e: self._show_create_lead()
+            ),
+        ]
+        
+        # Auswertungs-Button nur für rolle_id = 4 hinzufügen
+        if self.current_user and self.current_user.get('rolle_id') == 4:
+            buttons.append(
+                ft.ElevatedButton(
+                    content=ft.Column([
+                        ft.Icon(ft.Icons.ANALYTICS, size=40),
+                        ft.Text("Auswertung", size=16, weight=ft.FontWeight.W_500),
+                        ft.Text("Alle Leads anzeigen", size=12, color="grey")
+                    ], spacing=5, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                    width=300,
+                    height=120,
+                    on_click=lambda e: self._show_auswertung(),
+                    bgcolor="#3b82f6",
+                    color="white",
+                )
+            )
+        
+        return ft.Column(buttons, spacing=15, horizontal_alignment=ft.CrossAxisAlignment.CENTER)
     
     def _show_leads(self):
         """Zeigt die Lead-Bearbeitung UI"""
@@ -372,6 +432,178 @@ class AppController:
         
         # Zur Login-Seite navigieren
         self.show_login_screen()
+    
+    # ========== Admin-Methoden ==========
+    def show_admin_menu(self):
+        """Zeigt das Admin-Menü (nur für rolle_id = 0)"""
+        if self.current_user.get('rolle_id') != 0:
+            # Sicherheitscheck: Nicht-Admins zurück zum normalen Menü
+            self.show_main_app()
+            return
+        
+        admin_menu = AdminMenuView(self.page, self.current_user, self)
+        admin_menu.render()
+    
+    def show_delete_leads(self):
+        """Zeigt die Lead-Löschungs-Ansicht (nur für Admins)"""
+        if self.current_user.get('rolle_id') != 0:
+            return
+        
+        delete_view = LeadLoeschenView(self.page, self.db, self.current_user, self)
+        delete_view.render()
+    # ====================================
+    
+    # ========== Auswertungs-Methoden ==========
+    def _show_auswertung(self):
+        """Zeigt die Auswertungs-Ansicht (nur für rolle_id = 4)"""
+        # Rollenüberprüfung
+        if self.current_user.get('rolle_id') != 4:
+            self._show_access_denied("Auswertung")
+            return
+        
+        # Drawer schließen falls vorhanden
+        if self.page.drawer:
+            self.page.drawer.open = False
+            self.page.update()
+        
+        self.page.clean()
+        
+        # Erstelle die View nur beim ersten Mal, danach wiederverwenden
+        if self.auswertung_view is None:
+            self.auswertung_view = AuswertungView(
+                self.page,
+                self.auswertung_manager,
+                self.current_user
+            )
+            self.auswertung_view.app_controller = self
+        else:
+            # Update Manager und Page
+            self.auswertung_view.manager = self.auswertung_manager
+            self.auswertung_view.page = self.page
+        
+        self.auswertung_view.render()
+    
+    def _show_access_denied(self, feature_name):
+        """Zeigt Zugriff-verweigert Dialog"""
+        def close_dialog(e):
+            self.page.close(dialog)
+        
+        dialog = ft.AlertDialog(
+            title=ft.Text("Zugriff verweigert"),
+            content=ft.Text(f"Du hast keine Berechtigung für '{feature_name}'."),
+            actions=[
+                ft.TextButton("OK", on_click=close_dialog)
+            ],
+        )
+        self.page.open(dialog)
+    
+    def show_auswertung_menu(self):
+        """Zeigt das Auswertungs-Menü für rolle_id = 4 Benutzer"""
+        self.page.clean()
+        self.page.padding = 0
+        self.page.bgcolor = "#1a1f2e"
+        
+        # Header mit Logout
+        header = ft.Container(
+            content=ft.Row([
+                ft.Row([
+                    ft.Text("Leadify", size=20, color="white", weight=ft.FontWeight.BOLD),
+                    ft.Container(width=20),
+                    ft.Text("Auswertung", size=16, color="#64748b"),
+                ], spacing=10),
+                ft.Row([
+                    ft.Container(
+                        content=ft.IconButton(
+                            icon=ft.Icons.LOGOUT,
+                            icon_color="white",
+                            icon_size=24,
+                            on_click=lambda e: self._handle_logout(e),
+                            tooltip="Abmelden"
+                        ),
+                        bgcolor="#ef4444",
+                        border_radius=20,
+                        width=40,
+                        height=40,
+                    ),
+                ], spacing=15),
+            ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+            bgcolor="#0f172a",
+            padding=ft.padding.symmetric(horizontal=30, vertical=15),
+        )
+        
+        # Willkommenstext
+        welcome_section = ft.Container(
+            content=ft.Column([
+                ft.Text(
+                    "Willkommen zu Leadify!",
+                    size=32,
+                    color="white",
+                    weight=ft.FontWeight.BOLD,
+                ),
+                ft.Text(
+                    f"Hallo {self.current_user.get('vorname', 'Benutzer')}",
+                    size=16,
+                    color="#94a3b8",
+                ),
+                ft.Container(height=20),
+                ft.Text(
+                    "Controlling - Alle Leads im Überblick",
+                    size=18,
+                    color="white",
+                    weight=ft.FontWeight.W_500,
+                ),
+            ], spacing=5),
+            padding=ft.padding.only(left=30, right=30, top=40, bottom=30),
+        )
+        
+        # Auswertungs-Kachel
+        tile_section = ft.Container(
+            content=ft.Container(
+                content=ft.Column([
+                    ft.Container(
+                        content=ft.Icon(ft.Icons.ANALYTICS, color="white", size=48),
+                        bgcolor="#3b82f6",
+                        width=80,
+                        height=80,
+                        border_radius=12,
+                        alignment=ft.alignment.center,
+                    ),
+                    ft.Container(height=20),
+                    ft.Text(
+                        "Lead Ansicht öffnen",
+                        size=18,
+                        color="white",
+                        weight=ft.FontWeight.W_600,
+                    ),
+                    ft.Container(height=5),
+                    ft.Text(
+                        "Alle Leads anzeigen, filtern und auswerten",
+                        size=14,
+                        color="#64748b",
+                        max_lines=2,
+                    ),
+                ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                bgcolor="#1e293b",
+                padding=30,
+                border_radius=12,
+                width=350,
+                height=250,
+                on_click=lambda e: self._show_auswertung(),
+                ink=True,
+            ),
+            padding=ft.padding.symmetric(horizontal=30),
+            alignment=ft.alignment.center,
+        )
+        
+        # Hauptcontainer
+        main_content = ft.Column([
+            header,
+            welcome_section,
+            tile_section,
+        ], spacing=0, expand=True)
+        
+        self.page.add(main_content)
+    # ==========================================
 
 
 def main(page: ft.Page):
