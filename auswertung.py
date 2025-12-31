@@ -211,7 +211,6 @@ class AuswertungView:
         """Zeigt die Auswertungs-Ansicht"""
         self.page.clean()
         self.page.padding = 0
-        self.page.bgcolor = "#1a1f2e"
         
         # Leads laden
         self._load_leads()
@@ -225,23 +224,20 @@ class AuswertungView:
                 ft.Row([
                     ft.IconButton(
                         icon=ft.Icons.ARROW_BACK,
-                        icon_color="white",
                         on_click=lambda e: self._go_back(),
                         tooltip="Zurück"
                     ),
-                    ft.Text("Lead Ansicht - Alle Leads", size=24, color="white", weight=ft.FontWeight.BOLD),
+                    ft.Text("Lead Ansicht - Alle Leads", size=24, weight=ft.FontWeight.BOLD),
                 ], spacing=10),
                 ft.Row([
                     ft.IconButton(
                         icon=ft.Icons.DOWNLOAD,
-                        icon_color="white",
                         icon_size=28,
                         on_click=lambda e: self._export_to_excel(),
                         tooltip="Als Excel exportieren (mit Filtern)"
                     ),
                 ], spacing=15),
             ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-            bgcolor="#0f172a",
             padding=ft.padding.symmetric(horizontal=30, vertical=20),
         )
         
@@ -282,9 +278,8 @@ class AuswertungView:
         return ft.Container(
             content=ft.Column([
                 ft.Text(title, size=14, color="#94a3b8"),
-                ft.Text(str(value), size=32, color="white", weight=ft.FontWeight.BOLD),
+                ft.Text(str(value), size=32, weight=ft.FontWeight.BOLD),
             ], spacing=5, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
-            bgcolor="#1e293b",
             padding=20,
             border_radius=12,
             width=150,
@@ -303,9 +298,6 @@ class AuswertungView:
                      for e in erfasser_list],
             value="all",
             on_change=lambda e: self._filter_by_erfasser(e.control.value),
-            bgcolor="#1e293b",
-            color="white",
-            border_color="#475569",
         )
         
         self.status_dropdown = ft.Dropdown(
@@ -321,9 +313,6 @@ class AuswertungView:
             ],
             value="all",
             on_change=lambda e: self._filter_by_status(e.control.value),
-            bgcolor="#1e293b",
-            color="white",
-            border_color="#475569",
         )
         
         self.search_field = ft.TextField(
@@ -331,9 +320,6 @@ class AuswertungView:
             hint_text="Kunde, Produkt, Erfasser...",
             width=300,
             on_change=lambda e: self._search_leads(e.control.value),
-            bgcolor="#1e293b",
-            color="white",
-            border_color="#475569",
             prefix_icon=ft.Icons.SEARCH,
         )
         
@@ -341,8 +327,6 @@ class AuswertungView:
             "Filter zurücksetzen",
             icon=ft.Icons.REFRESH,
             on_click=lambda e: self._reset_filters(),
-            bgcolor="#475569",
-            color="white",
         )
         
         return ft.Container(
@@ -353,7 +337,6 @@ class AuswertungView:
                 reset_button,
             ], spacing=15, wrap=True),
             padding=ft.padding.symmetric(horizontal=30, vertical=15),
-            bgcolor="#0f172a",
         )
     
     def _create_lead_list(self):
@@ -401,12 +384,12 @@ class AuswertungView:
                 ft.Row([
                     ft.Row([
                         ft.Container(
-                            content=ft.Text(f"#{lead.get('lead_id')}", size=12, color="white", weight=ft.FontWeight.BOLD),
+                            content=ft.Text(f"#{lead.get('lead_id')}", size=12, weight=ft.FontWeight.BOLD),
                             bgcolor=status_color,
                             padding=ft.padding.symmetric(horizontal=8, vertical=4),
                             border_radius=4,
                         ),
-                        ft.Text(lead.get('kunde_name', 'Unbekannt'), size=16, color="white", weight=ft.FontWeight.W_600),
+                        ft.Text(lead.get('kunde_name', 'Unbekannt'), size=16, weight=ft.FontWeight.W_600),
                     ], spacing=10),
                     ft.Container(
                         content=ft.Text(lead.get('status_name', 'Offen'), size=12, color="white"),
@@ -422,19 +405,19 @@ class AuswertungView:
                 ft.Row([
                     ft.Column([
                         ft.Text("Produkt:", size=12, color="#64748b"),
-                        ft.Text(lead.get('produkt_name', 'Unbekannt'), size=14, color="white"),
+                        ft.Text(lead.get('produkt_name', 'Unbekannt'), size=14),
                     ], spacing=2),
                     ft.Column([
                         ft.Text("Erfasser:", size=12, color="#64748b"),
-                        ft.Text(lead.get('erfasser_name', 'Unbekannt'), size=14, color="white"),
+                        ft.Text(lead.get('erfasser_name', 'Unbekannt'), size=14),
                     ], spacing=2),
                     ft.Column([
                         ft.Text("Bearbeiter:", size=12, color="#64748b"),
-                        ft.Text(lead.get('bearbeiter_name', 'Nicht zugewiesen'), size=14, color="white"),
+                        ft.Text(lead.get('bearbeiter_name', 'Nicht zugewiesen'), size=14),
                     ], spacing=2),
                     ft.Column([
                         ft.Text("Erfasst am:", size=12, color="#64748b"),
-                        ft.Text(datum_str, size=14, color="white"),
+                        ft.Text(datum_str, size=14),
                     ], spacing=2),
                 ], spacing=30, wrap=True),
                 
@@ -454,10 +437,9 @@ class AuswertungView:
                     ], spacing=5),
                 ], spacing=20, wrap=True),
             ], spacing=10),
-            bgcolor="#1e293b",
             padding=20,
             border_radius=12,
-            border=ft.border.all(1, "#475569"),
+            border=ft.border.all(1, ft.Colors.OUTLINE),
             on_click=lambda e, l=lead: self._show_lead_details(l),
             ink=True,
         )
@@ -574,7 +556,8 @@ class AuswertungView:
             headers = [
                 'Lead-ID', 'Datum erfasst', 'Kunde', 'Ansprechpartner',
                 'Produkt', 'Produktgruppe', 'Zustand', 'Quelle',
-                'Status', 'Erfasser', 'Bearbeiter'
+                'Status', 'Erfasser', 'Bearbeiter',
+                'Angenommen am', 'Weitergeleitet am', 'Abgelehnt am', 'Erledigt am', 'Letzte Aktion'
             ]
             
             # Header-Zeile mit Formatierung
@@ -593,6 +576,41 @@ class AuswertungView:
                 else:
                     datum_str = str(datum)
                 
+                # Lade Aktionen für diesen Lead
+                aktionen = self.manager.get_lead_aktionen(lead.get('lead_id'))
+                
+                # Extrahiere spezifische Aktionsdaten
+                angenommen_am = ""
+                weitergeleitet_am = ""
+                abgelehnt_am = ""
+                erledigt_am = ""
+                letzte_aktion = ""
+                
+                if aktionen:
+                    for aktion in aktionen:
+                        zeitstempel = aktion.get('zeitstempel', '')
+                        if isinstance(zeitstempel, datetime):
+                            zeit_str = zeitstempel.strftime("%d.%m.%Y %H:%M")
+                        else:
+                            zeit_str = str(zeitstempel)
+                        
+                        aktion_typ = aktion.get('aktion_typ', '')
+                        
+                        if aktion_typ == 'angenommen' and not angenommen_am:
+                            angenommen_am = zeit_str
+                        elif aktion_typ == 'zugewiesen' and not weitergeleitet_am:
+                            weitergeleitet_am = zeit_str
+                        elif aktion_typ == 'abgelehnt' and not abgelehnt_am:
+                            abgelehnt_am = zeit_str
+                        elif aktion_typ == 'erledigt' and not erledigt_am:
+                            erledigt_am = zeit_str
+                    
+                    # Letzte Aktion (erste in der Liste da DESC sortiert)
+                    erste_aktion = aktionen[0]
+                    benutzer = erste_aktion.get('benutzer_name', 'Unbekannt')
+                    typ = erste_aktion.get('aktion_typ', '')
+                    letzte_aktion = f"{typ} von {benutzer}"
+                
                 # Daten in Zeile schreiben
                 ws.cell(row=row_idx, column=1, value=lead.get('lead_id', ''))
                 ws.cell(row=row_idx, column=2, value=datum_str)
@@ -605,11 +623,16 @@ class AuswertungView:
                 ws.cell(row=row_idx, column=9, value=lead.get('status_name', ''))
                 ws.cell(row=row_idx, column=10, value=lead.get('erfasser_name', ''))
                 ws.cell(row=row_idx, column=11, value=lead.get('bearbeiter_name', 'Nicht zugewiesen'))
+                ws.cell(row=row_idx, column=12, value=angenommen_am)
+                ws.cell(row=row_idx, column=13, value=weitergeleitet_am)
+                ws.cell(row=row_idx, column=14, value=abgelehnt_am)
+                ws.cell(row=row_idx, column=15, value=erledigt_am)
+                ws.cell(row=row_idx, column=16, value=letzte_aktion)
             
             # Spaltenbreiten anpassen
             column_widths = {
                 'A': 10,  # Lead-ID
-                'B': 18,  # Datum
+                'B': 18,  # Datum erfasst
                 'C': 25,  # Kunde
                 'D': 25,  # Ansprechpartner
                 'E': 20,  # Produkt
@@ -619,12 +642,17 @@ class AuswertungView:
                 'I': 18,  # Status
                 'J': 20,  # Erfasser
                 'K': 20,  # Bearbeiter
+                'L': 18,  # Angenommen am
+                'M': 18,  # Weitergeleitet am
+                'N': 18,  # Abgelehnt am
+                'O': 18,  # Erledigt am
+                'P': 30,  # Letzte Aktion
             }
             for col, width in column_widths.items():
                 ws.column_dimensions[col].width = width
             
             # AutoFilter für alle Spalten aktivieren
-            ws.auto_filter.ref = f"A1:K{len(self.all_leads) + 1}"
+            ws.auto_filter.ref = f"A1:P{len(self.all_leads) + 1}"
             
             # Aktive Filter in Excel anwenden
             filter_info = []
@@ -758,7 +786,6 @@ class LeadDetailViewAuswertung:
         """Zeigt die Lead-Details"""
         self.page.clean()
         self.page.padding = 0
-        self.page.bgcolor = "#1a1f2e"
         
         # Aktualisierte Daten laden
         self.lead = self.manager.get_lead_by_id(self.lead.get('lead_id'))
@@ -770,13 +797,11 @@ class LeadDetailViewAuswertung:
             content=ft.Row([
                 ft.IconButton(
                     icon=ft.Icons.ARROW_BACK,
-                    icon_color="white",
                     on_click=lambda e: self._go_back(),
                     tooltip="Zurück zur Liste"
                 ),
-                ft.Text(f"Lead #{self.lead.get('lead_id')}", size=24, color="white", weight=ft.FontWeight.BOLD),
+                ft.Text(f"Lead #{self.lead.get('lead_id')}", size=24, weight=ft.FontWeight.BOLD),
             ], spacing=10),
-            bgcolor="#0f172a",
             padding=ft.padding.symmetric(horizontal=30, vertical=20),
         )
         
@@ -828,9 +853,9 @@ class LeadDetailViewAuswertung:
         return ft.Container(
             content=ft.Column([
                 ft.Row([
-                    ft.Text("Lead-Informationen", size=20, color="white", weight=ft.FontWeight.BOLD),
+                    ft.Text("Lead-Informationen", size=20, weight=ft.FontWeight.BOLD),
                     ft.Container(
-                        content=ft.Text(self.lead.get('status_name', 'Offen'), size=14, color="white"),
+                        content=ft.Text(self.lead.get('status_name', 'Offen'), size=14),
                         bgcolor=status_color,
                         padding=ft.padding.symmetric(horizontal=15, vertical=8),
                         border_radius=20,
@@ -843,25 +868,25 @@ class LeadDetailViewAuswertung:
                 ft.Row([
                     ft.Column([
                         ft.Text("Firma:", size=12, color="#64748b"),
-                        ft.Text(self.lead.get('kunde_name', '-'), size=14, color="white"),
+                        ft.Text(self.lead.get('kunde_name', '-'), size=14),
                     ], spacing=2),
                     ft.Column([
                         ft.Text("Ansprechpartner:", size=12, color="#64748b"),
-                        ft.Text(self.lead.get('ansprechpartner_name', '-'), size=14, color="white"),
+                        ft.Text(self.lead.get('ansprechpartner_name', '-'), size=14),
                     ], spacing=2),
                     ft.Column([
                         ft.Text("Position:", size=12, color="#64748b"),
-                        ft.Text(self.lead.get('ansprechpartner_position', '-'), size=14, color="white"),
+                        ft.Text(self.lead.get('ansprechpartner_position', '-'), size=14),
                     ], spacing=2),
                 ], spacing=30, wrap=True),
                 ft.Row([
                     ft.Column([
                         ft.Text("E-Mail:", size=12, color="#64748b"),
-                        ft.Text(self.lead.get('kunde_email', '-'), size=14, color="white"),
+                        ft.Text(self.lead.get('kunde_email', '-'), size=14),
                     ], spacing=2),
                     ft.Column([
                         ft.Text("Telefon:", size=12, color="#64748b"),
-                        ft.Text(self.lead.get('kunde_telefon', '-'), size=14, color="white"),
+                        ft.Text(self.lead.get('kunde_telefon', '-'), size=14),
                     ], spacing=2),
                 ], spacing=30, wrap=True),
                 
@@ -872,19 +897,19 @@ class LeadDetailViewAuswertung:
                 ft.Row([
                     ft.Column([
                         ft.Text("Produktgruppe:", size=12, color="#64748b"),
-                        ft.Text(self.lead.get('produktgruppe_name', '-'), size=14, color="white"),
+                        ft.Text(self.lead.get('produktgruppe_name', '-'), size=14),
                     ], spacing=2),
                     ft.Column([
                         ft.Text("Produkt:", size=12, color="#64748b"),
-                        ft.Text(self.lead.get('produkt_name', '-'), size=14, color="white"),
+                        ft.Text(self.lead.get('produkt_name', '-'), size=14),
                     ], spacing=2),
                     ft.Column([
                         ft.Text("Zustand:", size=12, color="#64748b"),
-                        ft.Text(self.lead.get('produktzustand_name', '-'), size=14, color="white"),
+                        ft.Text(self.lead.get('produktzustand_name', '-'), size=14),
                     ], spacing=2),
                     ft.Column([
                         ft.Text("Quelle:", size=12, color="#64748b"),
-                        ft.Text(self.lead.get('quelle_name', '-'), size=14, color="white"),
+                        ft.Text(self.lead.get('quelle_name', '-'), size=14),
                     ], spacing=2),
                 ], spacing=30, wrap=True),
                 
@@ -895,19 +920,18 @@ class LeadDetailViewAuswertung:
                 ft.Row([
                     ft.Column([
                         ft.Text("Erfasst von:", size=12, color="#64748b"),
-                        ft.Text(self.lead.get('erfasser_name', '-'), size=14, color="white"),
+                        ft.Text(self.lead.get('erfasser_name', '-'), size=14),
                     ], spacing=2),
                     ft.Column([
                         ft.Text("Bearbeiter:", size=12, color="#64748b"),
-                        ft.Text(self.lead.get('bearbeiter_name', 'Nicht zugewiesen'), size=14, color="white"),
+                        ft.Text(self.lead.get('bearbeiter_name', 'Nicht zugewiesen'), size=14),
                     ], spacing=2),
                     ft.Column([
                         ft.Text("Erfasst am:", size=12, color="#64748b"),
-                        ft.Text(datum_str, size=14, color="white"),
+                        ft.Text(datum_str, size=14),
                     ], spacing=2),
                 ], spacing=30, wrap=True),
             ], spacing=10),
-            bgcolor="#1e293b",
             padding=25,
             border_radius=12,
         )
@@ -950,12 +974,12 @@ class LeadDetailViewAuswertung:
                                 ft.Icon(ft.Icons.HISTORY, size=16, color="#64748b"),
                                 ft.Text(zeit_str, size=12, color="#64748b"),
                             ], spacing=5),
-                            ft.Text(text, size=14, color="white"),
+                            ft.Text(text, size=14),
                             ft.Text(kommentar, size=12, color="#94a3b8", italic=True) if kommentar else ft.Container(),
                         ], spacing=5),
-                        bgcolor="#0f172a",
                         padding=15,
                         border_radius=8,
+                        border=ft.border.all(1, ft.Colors.OUTLINE),
                     )
                 )
             
@@ -963,11 +987,10 @@ class LeadDetailViewAuswertung:
         
         return ft.Container(
             content=ft.Column([
-                ft.Text("Verlauf", size=18, color="white", weight=ft.FontWeight.BOLD),
+                ft.Text("Verlauf", size=18, weight=ft.FontWeight.BOLD),
                 ft.Divider(color="#475569"),
                 content,
             ], spacing=10),
-            bgcolor="#1e293b",
             padding=25,
             border_radius=12,
         )
@@ -990,11 +1013,11 @@ class LeadDetailViewAuswertung:
                     ft.Container(
                         content=ft.Column([
                             ft.Text(datum_str, size=12, color="#64748b"),
-                            ft.Text(kommentar.get('text', ''), size=14, color="white"),
+                            ft.Text(kommentar.get('text', ''), size=14),
                         ], spacing=5),
-                        bgcolor="#0f172a",
                         padding=15,
                         border_radius=8,
+                        border=ft.border.all(1, ft.Colors.OUTLINE),
                     )
                 )
             
@@ -1002,11 +1025,10 @@ class LeadDetailViewAuswertung:
         
         return ft.Container(
             content=ft.Column([
-                ft.Text("Kommentare", size=18, color="white", weight=ft.FontWeight.BOLD),
+                ft.Text("Kommentare", size=18, weight=ft.FontWeight.BOLD),
                 ft.Divider(color="#475569"),
                 content,
             ], spacing=10),
-            bgcolor="#1e293b",
             padding=25,
             border_radius=12,
         )

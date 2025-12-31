@@ -3,6 +3,8 @@ from db_config import db_host,db_user,db_password,db_port,db_database
 import database
 from auth_manager import AuthManager
 from lead_bearbeitung import LeadBearbeitungManager, LeadBearbeitungView
+import json
+from pathlib import Path
 
 # ========== NEU: Außendienst-Imports ==========
 from Außendienst import AussendienstManager
@@ -17,6 +19,10 @@ from lead_loeschen import LeadLoeschenView
 # ========== Auswertungs-Imports ==========
 from auswertung import AuswertungManager, AuswertungView
 # =========================================
+
+# ========== Lead-Status-Imports ==========
+from lead_status import LeadStatusManager, LeadStatusView
+# ==========================================
 
 
 class AppController:
@@ -39,11 +45,50 @@ class AppController:
         self.auswertung_view = None  # Speichere Auswertungs-View
         # ==========================================
         
+        # ========== Lead-Status-Manager ==========
+        self.lead_status_manager = LeadStatusManager(db)
+        self.lead_status_view = None  # Speichere Lead-Status-View
+        # ========================================
+        
         # Page-Konfiguration
         self.page.title = "Leadify"
         self.page.vertical_alignment = ft.MainAxisAlignment.CENTER
         self.page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
         self.page.padding = 20
+        
+        # Theme laden und anwenden
+        self._load_theme()
+    
+    def _load_theme(self):
+        """Lädt gespeichertes Theme aus Datei"""
+        theme_file = Path.home() / ".leadify_theme.json"
+        try:
+            if theme_file.exists():
+                with open(theme_file, 'r') as f:
+                    theme_data = json.load(f)
+                    is_dark = theme_data.get('dark_mode', False)
+                    self.page.theme_mode = ft.ThemeMode.DARK if is_dark else ft.ThemeMode.LIGHT
+            else:
+                # Standard: Light Mode
+                self.page.theme_mode = ft.ThemeMode.LIGHT
+        except:
+            self.page.theme_mode = ft.ThemeMode.LIGHT
+    
+    def _save_theme(self, is_dark: bool):
+        """Speichert Theme-Präferenz"""
+        theme_file = Path.home() / ".leadify_theme.json"
+        try:
+            with open(theme_file, 'w') as f:
+                json.dump({'dark_mode': is_dark}, f)
+        except Exception as e:
+            print(f"Fehler beim Speichern des Themes: {e}")
+    
+    def _toggle_theme(self, e):
+        """Wechselt zwischen Dark und Light Mode"""
+        is_dark = e.control.value
+        self.page.theme_mode = ft.ThemeMode.DARK if is_dark else ft.ThemeMode.LIGHT
+        self._save_theme(is_dark)
+        self.page.update()
     
     def start(self):
         """Startet die Anwendung und prüft Auto-Login"""
@@ -73,6 +118,12 @@ class AppController:
         self.page.vertical_alignment = ft.MainAxisAlignment.START
         self.page.horizontal_alignment = ft.CrossAxisAlignment.START
         
+        # NEU: Prüfe Anzahl neuer Leads für Badge
+        anzahl_neue_leads = 0
+        if self.current_user.get('rolle_id') in [1, 2]:
+            lead_manager = LeadBearbeitungManager(self.db)
+            anzahl_neue_leads = lead_manager.count_neue_leads(self.current_user['benutzer_id'])
+        
         # Hamburger Menü
         menu_controls = [
             ft.Container(height=10),
@@ -84,13 +135,35 @@ class AppController:
             ft.ListTile(
                 leading=ft.Icon(ft.Icons.INBOX),
                 title=ft.Text("Meine Nachrichten"),
+                trailing=ft.Container(
+                    content=ft.Text(
+                        str(anzahl_neue_leads),
+                        color="white",
+                        size=12,
+                        weight=ft.FontWeight.BOLD
+                    ),
+                    bgcolor="orange" if anzahl_neue_leads > 0 else "transparent",
+                    width=24,
+                    height=24,
+                    border_radius=12,
+                    alignment=ft.alignment.center,
+                    visible=anzahl_neue_leads > 0
+                ),
                 on_click=lambda e: self._show_leads()
             ),
+
+            ft.ListTile(
+                leading=ft.Icon(ft.Icons.ASSIGNMENT),
+                title=ft.Text("Gesendete Leads"),
+                on_click=lambda e: self._show_lead_status()
+            ),
+
             ft.ListTile(
                 leading=ft.Icon(ft.Icons.ADD_CIRCLE),
                 title=ft.Text("Lead erstellen"),
                 on_click=lambda e: self._show_create_lead()
             ),
+            
         ]
         
         # Auswertungs-Option nur für rolle_id = 4 anzeigen
@@ -106,16 +179,49 @@ class AppController:
         
         menu_controls.extend([
             ft.Divider(),
-            ft.ListTile(
-                leading=ft.Icon(ft.Icons.LOGOUT),
-                title=ft.Text("Abmelden"),
-                on_click=self._handle_logout
-            ),
         ])
         
         menu_drawer = ft.NavigationDrawer(controls=menu_controls)
         
         self.page.drawer = menu_drawer
+        
+        # Profil-Drawer (rechts) mit Abmelden und Passwort ändern
+        # Theme-Switch basierend auf aktuellem Modus
+        is_dark_mode = self.page.theme_mode == ft.ThemeMode.DARK
+        
+        profile_controls = [
+            ft.Container(height=10),
+            ft.ListTile(
+                leading=ft.Icon(ft.Icons.ACCOUNT_CIRCLE, size=40),
+                title=ft.Text(f"{self.current_user.get('vorname', '')} {self.current_user.get('nachname', '')}", 
+                             weight=ft.FontWeight.BOLD),
+                subtitle=ft.Text(self.current_user.get('email', '')),
+            ),
+            ft.Divider(),
+            ft.ListTile(
+                leading=ft.Icon(ft.Icons.DARK_MODE),
+                title=ft.Text("Dark Mode"),
+                trailing=ft.Switch(
+                    value=is_dark_mode,
+                    on_change=self._toggle_theme
+                )
+            ),
+            ft.Divider(),
+            ft.ListTile(
+                leading=ft.Icon(ft.Icons.LOCK),
+                title=ft.Text("Passwort ändern"),
+                on_click=lambda e: self._show_change_password()
+            ),
+            ft.Divider(),
+            ft.ListTile(
+                leading=ft.Icon(ft.Icons.LOGOUT),
+                title=ft.Text("Abmelden"),
+                on_click=self._handle_logout
+            ),
+        ]
+        
+        profile_drawer = ft.NavigationDrawer(controls=profile_controls)
+        self.page.end_drawer = profile_drawer
         
         # Willkommensbildschirm
         username = self.current_user.get('vorname') or self.current_user.get('email')
@@ -131,7 +237,12 @@ class AppController:
                             on_click=lambda e: self._toggle_drawer()
                         ),
                         ft.Text("Leadify", size=24, weight=ft.FontWeight.BOLD, expand=True),
-                        ft.Icon(ft.Icons.ACCOUNT_CIRCLE, size=30)
+                        ft.IconButton(
+                            icon=ft.Icons.ACCOUNT_CIRCLE,
+                            icon_size=30,
+                            on_click=lambda e: self._toggle_profile_drawer(),
+                            tooltip="Profil"
+                        )
                     ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
                     
                     ft.Divider(),
@@ -161,15 +272,145 @@ class AppController:
         self.page.drawer.open = not self.page.drawer.open
         self.page.update()
     
+    def _toggle_profile_drawer(self):
+        """Öffnet/Schließt das Profil-Menü"""
+        self.page.end_drawer.open = not self.page.end_drawer.open
+        self.page.update()
+    
+    def _show_change_password(self):
+        """Zeigt Dialog zum Ändern des Passworts"""
+        self.page.end_drawer.open = False
+        self.page.update()
+        
+        # Eingabefelder
+        old_password_field = ft.TextField(
+            label="Altes Passwort",
+            password=True,
+            can_reveal_password=True,
+            width=300
+        )
+        
+        new_password_field = ft.TextField(
+            label="Neues Passwort",
+            password=True,
+            can_reveal_password=True,
+            width=300
+        )
+        
+        confirm_password_field = ft.TextField(
+            label="Neues Passwort bestätigen",
+            password=True,
+            can_reveal_password=True,
+            width=300
+        )
+        
+        status_text = ft.Text("", color="red", size=12)
+        
+        def change_password_clicked(e):
+            # Validierung
+            if not old_password_field.value or not new_password_field.value or not confirm_password_field.value:
+                status_text.value = "Bitte fülle alle Felder aus"
+                status_text.color = "red"
+                self.page.update()
+                return
+            
+            if new_password_field.value != confirm_password_field.value:
+                status_text.value = "Neue Passwörter stimmen nicht überein"
+                status_text.color = "red"
+                self.page.update()
+                return
+            
+            if len(new_password_field.value) < 8:
+                status_text.value = "Passwort muss mindestens 8 Zeichen lang sein"
+                status_text.color = "red"
+                self.page.update()
+                return
+            
+            # Passwort ändern
+            success, message = self.auth.change_password(
+                self.current_user['benutzer_id'],
+                old_password_field.value,
+                new_password_field.value
+            )
+            
+            if success:
+                self.page.close(password_dialog)
+                
+                def logout_after_success(e):
+                    self.page.close(success_dialog)
+                    self._handle_logout(e)
+                
+                success_dialog = ft.AlertDialog(
+                    title=ft.Text("Erfolg", color=ft.Colors.GREEN),
+                    content=ft.Text("Passwort wurde erfolgreich geändert! Du wirst jetzt abgemeldet."),
+                    actions=[ft.TextButton("OK", on_click=logout_after_success)]
+                )
+                self.page.open(success_dialog)
+            else:
+                status_text.value = message
+                status_text.color = "red"
+                self.page.update()
+        
+        password_dialog = ft.AlertDialog(
+            title=ft.Text("Passwort ändern"),
+            content=ft.Container(
+                content=ft.Column([
+                    old_password_field,
+                    new_password_field,
+                    confirm_password_field,
+                    status_text
+                ], tight=True, spacing=15),
+                width=350
+            ),
+            actions=[
+                ft.TextButton("Abbrechen", on_click=lambda e: self.page.close(password_dialog)),
+                ft.ElevatedButton("Passwort ändern", on_click=change_password_clicked)
+            ]
+        )
+        
+        self.page.open(password_dialog)
+    
     def _create_quick_access_buttons(self):
         """Erstellt Schnellzugriff-Buttons basierend auf Benutzerrolle"""
+        
+        # NEU: Prüfe Anzahl neuer Leads für Badge
+        anzahl_neue_leads = 0
+        if self.current_user.get('rolle_id') in [1, 2]:
+            lead_manager = LeadBearbeitungManager(self.db)
+            anzahl_neue_leads = lead_manager.count_neue_leads(self.current_user['benutzer_id'])
+        
+        # Button-Inhalt für "Meine Nachrichten" mit Badge
+        nachrichten_content = ft.Stack([
+            ft.Column([
+                ft.Icon(ft.Icons.INBOX, size=40),
+                ft.Text("Meine Nachrichten", size=16, weight=ft.FontWeight.W_500),
+                ft.Text("Bearbeite deine Leads", size=12, color="grey")
+            ], spacing=5, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+        ])
+        
+        # Füge Badge hinzu, wenn neue Leads vorhanden
+        if anzahl_neue_leads > 0:
+            nachrichten_content.controls.append(
+                ft.Container(
+                    content=ft.Text(
+                        str(anzahl_neue_leads),
+                        color="white",
+                        size=12,
+                        weight=ft.FontWeight.BOLD
+                    ),
+                    bgcolor="orange",
+                    width=28,
+                    height=28,
+                    border_radius=14,
+                    alignment=ft.alignment.center,
+                    right=10,
+                    top=10,
+                )
+            )
+        
         buttons = [
             ft.ElevatedButton(
-                content=ft.Column([
-                    ft.Icon(ft.Icons.INBOX, size=40),
-                    ft.Text("Meine Nachrichten", size=16, weight=ft.FontWeight.W_500),
-                    ft.Text("Bearbeite deine Leads", size=12, color="grey")
-                ], spacing=5, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                content=nachrichten_content,
                 width=300,
                 height=120,
                 on_click=lambda e: self._show_leads()
@@ -183,6 +424,16 @@ class AppController:
                 width=300,
                 height=120,
                 on_click=lambda e: self._show_create_lead()
+            ),
+            ft.ElevatedButton(
+                content=ft.Column([
+                    ft.Icon(ft.Icons.ASSIGNMENT, size=40),
+                    ft.Text("Meine Leads", size=16, weight=ft.FontWeight.W_500),
+                    ft.Text("Status einsehen", size=12, color="grey")
+                ], spacing=5, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                width=300,
+                height=120,
+                on_click=lambda e: self._show_lead_status()
             ),
         ]
         
@@ -220,9 +471,10 @@ class AppController:
             self.lead_bearbeitung_view = LeadBearbeitungView(self.page, lead_manager, self.current_user)
             self.lead_bearbeitung_view.app_controller = self  # Referenz zum Controller für Navigation
         else:
-            # Update Manager und Page
+            # Update Manager, Page und current_user
             self.lead_bearbeitung_view.lead_manager = lead_manager
             self.lead_bearbeitung_view.page = self.page
+            self.lead_bearbeitung_view.current_user = self.current_user
         
         self.lead_bearbeitung_view.render()
     
@@ -243,12 +495,40 @@ class AppController:
             )
             self.aussendienst_view.app_controller = self  # Referenz zum Controller für Navigation
         else:
-            # Update Manager und Page
+            # Update Manager, Page und current_user
             self.aussendienst_view.manager = self.aussendienst_manager
             self.aussendienst_view.page = self.page
+            self.aussendienst_view.current_user = self.current_user
+            # Setze Schritt auf 1 zurück für neuen Lead
+            self.aussendienst_view.current_step = 1
         
         self.aussendienst_view.render()
     # ====================================================================
+    
+    # ========== NEU: Lead-Status-Methode ==========
+    def _show_lead_status(self):
+        """Zeigt Status aller von diesem Benutzer erstellten Leads"""
+        self.page.drawer.open = False
+        self.page.update()
+        
+        self.page.clean()
+        
+        # Erstelle die View nur beim ersten Mal, danach wiederverwenden
+        if self.lead_status_view is None:
+            self.lead_status_view = LeadStatusView(
+                self.page,
+                self.lead_status_manager,
+                self.current_user
+            )
+            self.lead_status_view.app_controller = self  # Referenz zum Controller für Navigation
+        else:
+            # Update Manager, Page und current_user
+            self.lead_status_view.lead_manager = self.lead_status_manager
+            self.lead_status_view.page = self.page
+            self.lead_status_view.current_user = self.current_user
+        
+        self.lead_status_view.render()
+    # ==============================================
 
     
     def show_pending_approval(self):
@@ -426,6 +706,11 @@ class AppController:
             self.page.drawer.open = False
             self.page.update()
         
+        # Profil-Drawer schließen
+        if self.page.end_drawer:
+            self.page.end_drawer.open = False
+            self.page.update()
+        
         # Logout durchführen
         self.auth.logout()
         self.current_user = None
@@ -477,9 +762,10 @@ class AppController:
             )
             self.auswertung_view.app_controller = self
         else:
-            # Update Manager und Page
+            # Update Manager, Page und current_user
             self.auswertung_view.manager = self.auswertung_manager
             self.auswertung_view.page = self.page
+            self.auswertung_view.current_user = self.current_user
         
         self.auswertung_view.render()
     
@@ -501,33 +787,59 @@ class AppController:
         """Zeigt das Auswertungs-Menü für rolle_id = 4 Benutzer"""
         self.page.clean()
         self.page.padding = 0
-        self.page.bgcolor = "#1a1f2e"
         
-        # Header mit Logout
+        # Profil-Drawer (rechts) erstellen
+        is_dark_mode = self.page.theme_mode == ft.ThemeMode.DARK
+        
+        profile_controls = [
+            ft.Container(height=10),
+            ft.ListTile(
+                leading=ft.Icon(ft.Icons.ACCOUNT_CIRCLE, size=40),
+                title=ft.Text(f"{self.current_user.get('vorname', '')} {self.current_user.get('nachname', '')}", 
+                             weight=ft.FontWeight.BOLD),
+                subtitle=ft.Text(self.current_user.get('email', '')),
+            ),
+            ft.Divider(),
+            ft.ListTile(
+                leading=ft.Icon(ft.Icons.DARK_MODE),
+                title=ft.Text("Dark Mode"),
+                trailing=ft.Switch(
+                    value=is_dark_mode,
+                    on_change=self._toggle_theme
+                )
+            ),
+            ft.Divider(),
+            ft.ListTile(
+                leading=ft.Icon(ft.Icons.LOCK),
+                title=ft.Text("Passwort ändern"),
+                on_click=lambda e: self._show_change_password()
+            ),
+            ft.Divider(),
+            ft.ListTile(
+                leading=ft.Icon(ft.Icons.LOGOUT),
+                title=ft.Text("Abmelden"),
+                on_click=self._handle_logout
+            ),
+        ]
+        
+        profile_drawer = ft.NavigationDrawer(controls=profile_controls)
+        self.page.end_drawer = profile_drawer
+        
+        # Header mit Profil-Icon
         header = ft.Container(
             content=ft.Row([
                 ft.Row([
-                    ft.Text("Leadify", size=20, color="white", weight=ft.FontWeight.BOLD),
+                    ft.Text("Leadify", size=20, weight=ft.FontWeight.BOLD),
                     ft.Container(width=20),
                     ft.Text("Auswertung", size=16, color="#64748b"),
                 ], spacing=10),
-                ft.Row([
-                    ft.Container(
-                        content=ft.IconButton(
-                            icon=ft.Icons.LOGOUT,
-                            icon_color="white",
-                            icon_size=24,
-                            on_click=lambda e: self._handle_logout(e),
-                            tooltip="Abmelden"
-                        ),
-                        bgcolor="#ef4444",
-                        border_radius=20,
-                        width=40,
-                        height=40,
-                    ),
-                ], spacing=15),
+                ft.IconButton(
+                    icon=ft.Icons.ACCOUNT_CIRCLE,
+                    icon_size=28,
+                    on_click=lambda e: self._toggle_profile_drawer(),
+                    tooltip="Profil"
+                ),
             ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-            bgcolor="#0f172a",
             padding=ft.padding.symmetric(horizontal=30, vertical=15),
         )
         
@@ -537,7 +849,6 @@ class AppController:
                 ft.Text(
                     "Willkommen zu Leadify!",
                     size=32,
-                    color="white",
                     weight=ft.FontWeight.BOLD,
                 ),
                 ft.Text(
@@ -549,7 +860,6 @@ class AppController:
                 ft.Text(
                     "Controlling - Alle Leads im Überblick",
                     size=18,
-                    color="white",
                     weight=ft.FontWeight.W_500,
                 ),
             ], spacing=5),
@@ -572,7 +882,6 @@ class AppController:
                     ft.Text(
                         "Lead Ansicht öffnen",
                         size=18,
-                        color="white",
                         weight=ft.FontWeight.W_600,
                     ),
                     ft.Container(height=5),
@@ -583,13 +892,13 @@ class AppController:
                         max_lines=2,
                     ),
                 ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
-                bgcolor="#1e293b",
                 padding=30,
                 border_radius=12,
                 width=350,
                 height=250,
                 on_click=lambda e: self._show_auswertung(),
                 ink=True,
+                border=ft.border.all(1, ft.Colors.OUTLINE),
             ),
             padding=ft.padding.symmetric(horizontal=30),
             alignment=ft.alignment.center,
