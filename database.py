@@ -1,6 +1,7 @@
 import mariadb
 import sys
 
+
 class Database:
     _instance = None  # Singleton, um nur eine Verbindung zu haben (Wichtig bei Modularisierung)
 
@@ -29,9 +30,9 @@ class Database:
                 )
                 self.cursor = self.conn.cursor(dictionary=True)
                 self.initialized = True
-                print("✅ Datenbankverbindung erfolgreich hergestellt.")
+                print("[OK] Datenbankverbindung erfolgreich hergestellt.")
             except mariadb.Error as e:
-                print(f"❌ Fehler beim Verbinden mit MariaDB: {e}")
+                print(f"[ERROR] Fehler beim Verbinden mit MariaDB: {e}")
                 sys.exit(1)
 
 
@@ -41,9 +42,11 @@ class Database:
         try:
             self.cursor.execute(sql, params or ())
             self.conn.commit()
+            # Speichere insert_id SOFORT nach commit, bevor sie verloren geht
+            self.last_insert_id = self.cursor.insert_id
             return self.cursor
         except mariadb.Error as e:
-            print(f"❌ SQL-Fehler: {e}")
+            print(f"[ERROR] SQL-Fehler: {e}")
             return None
 
     # Nur Daten abrufen (SELECT)
@@ -54,7 +57,7 @@ class Database:
             result = self.cursor.fetchall()
             return result
         except mariadb.Error as e:
-            print(f"❌ SQL-Fehler: {e}")
+            print(f"[ERROR] SQL-Fehler: {e}")
             return []
 
     def fetch_one(self, sql, params=None):
@@ -64,7 +67,7 @@ class Database:
             result = self.cursor.fetchone()
             return result
         except mariadb.Error as e:
-            print(f"❌ SQL-Fehler: {e}")
+            print(f"[ERROR] SQL-Fehler: {e}")
             return None
 
     def reconnect(self):
@@ -80,10 +83,10 @@ class Database:
                 port=self.port
             )
             self.cursor = self.conn.cursor(dictionary=True)
-            print("🔌 Verbindung erfolgreich wiederhergestellt.")
+            print("[OK] Verbindung erfolgreich wiederhergestellt.")
             return True
         except mariadb.Error as e:
-            print(f"❌ Reconnect fehlgeschlagen: {e}")
+            print(f"[ERROR] Reconnect fehlgeschlagen: {e}")
             return False
 
 
@@ -101,5 +104,5 @@ class Database:
             self.cursor.close()
         if hasattr(self, "conn") and self.conn: #<- hasattr prüft ob cursor und conn im Objekt existiert
             self.conn.close()
-        print("🔌 Verbindung geschlossen.")
+        print("[OK] Verbindung geschlossen.")
 
