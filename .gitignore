@@ -214,3 +214,4 @@ session.json
 .myapp/
 db_config.py
 leadify.sql
+leadify_main.sql
