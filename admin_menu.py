@@ -29,7 +29,7 @@ class AdminMenuView:
         text_secondary = "#94a3b8" if self.dark_mode else "#64748b"
         tile_bg = "#1e293b" if self.dark_mode else "#ffffff"
         
-        self.page.bgcolor = bg_color
+        self.page.bgcolor = None
         
         # Header mit Account-Button
         header = ft.Container(

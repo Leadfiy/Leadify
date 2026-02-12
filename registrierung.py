@@ -305,7 +305,7 @@ class AppController:
         
         status_text = ft.Text("", color="red", size=12)
         
-        def change_password_clicked(e):
+        async def change_password_clicked(e):
             # Validierung
             if not old_password_field.value or not new_password_field.value or not confirm_password_field.value:
                 status_text.value = "Bitte fülle alle Felder aus"
@@ -333,18 +333,18 @@ class AppController:
             )
             
             if success:
-                self.page.close(password_dialog)
+                self.page.pop_dialog()
                 
-                def logout_after_success(e):
-                    self.page.close(success_dialog)
-                    self._handle_logout(e)
+                async def logout_after_success(e):
+                    self.page.pop_dialog()
+                    await self._handle_logout(None)
                 
                 success_dialog = ft.AlertDialog(
                     title=ft.Text("Erfolg", color=ft.Colors.GREEN),
                     content=ft.Text("Passwort wurde erfolgreich geändert! Du wirst jetzt abgemeldet."),
                     actions=[ft.TextButton("OK", on_click=logout_after_success)]
                 )
-                self.page.open(success_dialog)
+                self.page.show_dialog(success_dialog)
             else:
                 status_text.value = message
                 status_text.color = "red"
@@ -362,12 +362,12 @@ class AppController:
                 width=350
             ),
             actions=[
-                ft.TextButton("Abbrechen", on_click=lambda e: self.page.close(password_dialog)),
+                ft.TextButton("Abbrechen", on_click=lambda e: self.page.pop_dialog()),
                 ft.ElevatedButton("Passwort ändern", on_click=change_password_clicked)
             ]
         )
         
-        self.page.open(password_dialog)
+        self.page.show_dialog(password_dialog)
     
     def _create_quick_access_buttons(self):
         """Erstellt Schnellzugriff-Buttons basierend auf Benutzerrolle"""
@@ -697,13 +697,15 @@ class AppController:
 
     async def _handle_logout(self, e):
         """Private Methode für Logout-Logik"""
-        # Hamburger-Menü schließen
+        # Hamburger-Menü schließen falls geöffnet
         if hasattr(self, 'menu_drawer'):
             await self.page.close_drawer()
         
-        # Profil-Drawer schließen
-        if hasattr(self, 'profile_drawer'):
+        # Profil-Drawer schließen falls geöffnet
+        try:
             await self.page.close_end_drawer()
+        except:
+            pass
         
         # Logout durchführen
         self.auth.logout()
@@ -773,7 +775,7 @@ class AppController:
     def _show_access_denied(self, feature_name):
         """Zeigt Zugriff-verweigert Dialog"""
         def close_dialog(e):
-            self.page.close(dialog)
+            self.page.pop_dialog()
         
         dialog = ft.AlertDialog(
             title=ft.Text("Zugriff verweigert"),
@@ -782,7 +784,7 @@ class AppController:
                 ft.TextButton("OK", on_click=close_dialog)
             ],
         )
-        self.page.open(dialog)
+        self.page.show_dialog(dialog)
     
     def show_auswertung_menu(self):
         """Zeigt das Auswertungs-Menü für rolle_id = 4 Benutzer"""
