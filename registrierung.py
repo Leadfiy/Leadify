@@ -252,15 +252,15 @@ class AppController:
                     # Willkommenstext
                     ft.Container(
                         content=ft.Column([
-                            ft.Text("Willkommen zu Leadify!", size=28, weight=ft.FontWeight.BOLD),
-                            ft.Text(f"Hallo {username}", size=18, color="grey"),
-                            ft.Divider(height=40, color="transparent"),
-                            ft.Text("Was möchtest du heute tun?", size=16, weight=ft.FontWeight.W_500),
-                        ], spacing=10),
-                        padding=20
+                            ft.Text("Willkommen zu Leadify!", size=22, weight=ft.FontWeight.BOLD),
+                            ft.Text(f"Hallo {username}", size=16, color="grey"),
+                            ft.Divider(height=20, color="transparent"),
+                            ft.Text("Was möchtest du heute tun?", size=14, weight=ft.FontWeight.W_500),
+                        ], spacing=5),
+                        padding=15
                     ),
                     
-                    ft.Divider(height=20, color="transparent"),
+                    ft.Divider(height=10, color="transparent"),
                     
                     # Schnellzugriff-Buttons - dynamisch je nach Rolle
                     self._create_quick_access_buttons(),
@@ -363,7 +363,7 @@ class AppController:
             ),
             actions=[
                 ft.TextButton("Abbrechen", on_click=lambda e: self.page.pop_dialog()),
-                ft.ElevatedButton("Passwort ändern", on_click=change_password_clicked)
+                ft.Button("Passwort ändern", on_click=change_password_clicked)
             ]
         )
         
@@ -408,13 +408,13 @@ class AppController:
             )
         
         buttons = [
-            ft.ElevatedButton(
+            ft.Button(
                 content=nachrichten_content,
                 width=300,
                 height=120,
                 on_click=self._show_leads
             ),
-            ft.ElevatedButton(
+            ft.Button(
                 content=ft.Column([
                     ft.Icon(ft.Icons.ADD_CIRCLE, size=40),
                     ft.Text("Lead erstellen", size=16, weight=ft.FontWeight.W_500),
@@ -424,7 +424,7 @@ class AppController:
                 height=120,
                 on_click=self._show_create_lead
             ),
-            ft.ElevatedButton(
+            ft.Button(
                 content=ft.Column([
                     ft.Icon(ft.Icons.ASSIGNMENT, size=40),
                     ft.Text("Meine Leads", size=16, weight=ft.FontWeight.W_500),
@@ -439,7 +439,7 @@ class AppController:
         # Auswertungs-Button nur für rolle_id = 4 hinzufügen
         if self.current_user and self.current_user.get('rolle_id') == 4:
             buttons.append(
-                ft.ElevatedButton(
+                ft.Button(
                     content=ft.Column([
                         ft.Icon(ft.Icons.ANALYTICS, size=40),
                         ft.Text("Auswertung", size=16, weight=ft.FontWeight.W_500),
@@ -550,7 +550,7 @@ class AppController:
                 ft.Icon(ft.Icons.HOURGLASS_EMPTY, size=64, color="orange"),
                 status_text,
                 ft.Divider(height=20, color="transparent"),
-                ft.ElevatedButton(
+                ft.Button(
                     "Status aktualisieren",
                     icon=ft.Icons.REFRESH,
                     on_click=check_approval
@@ -633,7 +633,7 @@ class AppController:
                 email_field,
                 password_field,
                 confirm_field,
-                ft.ElevatedButton("Registrieren", width=300, on_click=register_clicked),
+                ft.Button("Registrieren", width=300, on_click=register_clicked),
                 status_text,
                 ft.Divider(height=10, color="transparent"),
                 ft.TextButton("Bereits registriert? Zur Anmeldung", 
@@ -686,7 +686,7 @@ class AppController:
                 ft.Text("Anmeldung", size=24, weight=ft.FontWeight.BOLD),
                 email_field,
                 password_field,
-                ft.ElevatedButton("Anmelden", width=300, on_click=login_clicked),
+                ft.Button("Anmelden", width=300, on_click=login_clicked),
                 status_text,
                 ft.Divider(height=10, color="transparent"),
                 ft.TextButton("Noch kein Konto? Registrieren", 

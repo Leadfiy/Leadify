@@ -282,7 +282,7 @@ class LeadStatusView:
         self.page.clean()
         
         # Page-Einstellungen zurücksetzen (falls von Detailansicht zurückgekehrt)
-        self.page.padding = 20
+        self.page.padding = 5
         self.page.bgcolor = None
         
         self.leads = self.lead_manager.get_my_created_leads(self.current_user['benutzer_id'])
@@ -296,7 +296,7 @@ class LeadStatusView:
                 icon=ft.Icons.ARROW_BACK,
                 on_click=lambda e: self._go_back_to_menu()
             ),
-            ft.Text(f"Meine erstellten Leads ({len(filtered_leads)})", size=24, weight=ft.FontWeight.BOLD),
+            ft.Text(f"Meine erstellten Leads ({len(filtered_leads)})", size=18, weight=ft.FontWeight.BOLD),
             ft.IconButton(
                 icon=ft.Icons.REFRESH,
                 tooltip="Aktualisieren",
@@ -334,7 +334,7 @@ class LeadStatusView:
                     ft.Divider(height=10, color="transparent"),
                     lead_liste
                 ], scroll=ft.ScrollMode.AUTO),
-                padding=20,
+                padding=5,
                 expand=True
             )
         )
@@ -423,7 +423,7 @@ class LeadStatusView:
         status_badge = ft.Container(
             content=ft.Text(lead.status_name, size=12, weight=ft.FontWeight.BOLD),
             bgcolor=bg_color,
-            padding=ft.padding.symmetric(horizontal=8, vertical=4),
+            padding=ft.Padding.symmetric(horizontal=8, vertical=4),
             border_radius=4
         )
         
@@ -457,19 +457,34 @@ class LeadStatusView:
         # Titel-Zeile mit optionalem Badge
         badge_controls = []
         
+        # Prüfe ob mobile Ansicht (Breite < 600px)
+        is_mobile = self.page.width and self.page.width < 600
+        
         # Wenn zum Löschen vorgemerkt, zeige rotes Badge
         if is_marked_for_deletion:
-            badge_controls.append(
-                ft.Container(
-                    content=ft.Row([
-                        ft.Icon(ft.Icons.DELETE_OUTLINE, color="white", size=16),
-                        ft.Text("ZUM LÖSCHEN VORGEMERKT", size=11, color="white", weight=ft.FontWeight.BOLD)
-                    ], spacing=3),
-                    bgcolor="#dc2626",
-                    padding=ft.padding.symmetric(horizontal=6, vertical=3),
-                    border_radius=4,
+            if is_mobile:
+                # Mobile: Nur Icon
+                badge_controls.append(
+                    ft.Container(
+                        content=ft.Icon(ft.Icons.DELETE_OUTLINE, color="white", size=18),
+                        bgcolor="#dc2626",
+                        padding=ft.Padding.symmetric(horizontal=8, vertical=6),
+                        border_radius=4,
+                    )
                 )
-            )
+            else:
+                # Desktop: Icon + Text
+                badge_controls.append(
+                    ft.Container(
+                        content=ft.Row([
+                            ft.Icon(ft.Icons.DELETE_OUTLINE, color="white", size=16),
+                            ft.Text("ZUM LÖSCHEN VORGEMERKT", size=11, color="white", weight=ft.FontWeight.BOLD)
+                        ], spacing=3),
+                        bgcolor="#dc2626",
+                        padding=ft.Padding.symmetric(horizontal=6, vertical=3),
+                        border_radius=4,
+                    )
+                )
         # Sonst wenn andere Aktionen, zeige orange Badge
         elif has_update:
             badge_controls.append(
@@ -479,15 +494,32 @@ class LeadStatusView:
                         ft.Text("AKTUALISIERT", size=11, color="white", weight=ft.FontWeight.BOLD)
                     ], spacing=3),
                     bgcolor="orange",
-                    padding=ft.padding.symmetric(horizontal=6, vertical=3),
+                    padding=ft.Padding.symmetric(horizontal=6, vertical=3),
                     border_radius=4,
                 )
             )
         
-        title_content = ft.Row([
-            ft.Text(f"Lead #{lead.lead_id} - {lead.kunde_name}"),
-            *badge_controls
-        ], spacing=10)
+        # Titel-Zeile: Badge links auf Mobile, rechts auf Desktop
+        if is_mobile and badge_controls:
+            title_content = ft.Row([
+                *badge_controls,
+                ft.Text(
+                    f"Lead #{lead.lead_id} - {lead.kunde_name}",
+                    max_lines=2,
+                    overflow=ft.TextOverflow.ELLIPSIS,
+                    expand=True
+                ),
+            ], spacing=10)
+        else:
+            title_content = ft.Row([
+                ft.Text(
+                    f"Lead #{lead.lead_id} - {lead.kunde_name}",
+                    max_lines=2,
+                    overflow=ft.TextOverflow.ELLIPSIS,
+                    expand=True
+                ),
+                *badge_controls
+            ], spacing=10)
         
         # Card mit Hover-Effekt
         card_container = ft.Container(
@@ -498,16 +530,43 @@ class LeadStatusView:
                             leading=ft.Icon(ft.Icons.ASSIGNMENT),
                             title=title_content,
                             subtitle=ft.Row([
-                                ft.Text(f"{lead.produkt_name}"),
+                                ft.Text(
+                                    f"{lead.produkt_name}",
+                                    max_lines=2,
+                                    overflow=ft.TextOverflow.ELLIPSIS
+                                ),
                                 ft.Text("| Status:"),
                                 status_badge
                             ], spacing=5),
                         ),
+                        # Status-Zeile - unterschiedliche Anordnung für Mobile/Desktop
                         ft.Row([
+                            ft.Container(
+                                content=ft.Text(
+                                    f"Bearbeiter: {lead.bearbeiter_name}",
+                                    size=11,
+                                    color="grey",
+                                    max_lines=2,
+                                    overflow=ft.TextOverflow.ELLIPSIS,
+                                    text_align=ft.TextAlign.LEFT
+                                ),
+                                width=150
+                            ),
+                        ], spacing=10) if is_mobile else ft.Row([
                             ft.Icon(status_icon, color=bg_color, size=16),
                             ft.Text(status_desc, size=11, color=bg_color, weight=ft.FontWeight.BOLD),
                             ft.Container(expand=True),
-                            ft.Text(f"Bearbeiter: {lead.bearbeiter_name}", size=11, color="grey")
+                            ft.Container(
+                                content=ft.Text(
+                                    f"Bearbeiter: {lead.bearbeiter_name}",
+                                    size=11,
+                                    color="grey",
+                                    max_lines=2,
+                                    overflow=ft.TextOverflow.ELLIPSIS,
+                                    text_align=ft.TextAlign.RIGHT
+                                ),
+                                width=150
+                            )
                         ], spacing=10),
                         ft.Row([
                             ft.Text(f"Erfasst: {datum_text}", size=12, color="grey"),
@@ -557,6 +616,9 @@ class LeadDetailViewStatus:
         # Prüfe ob Lead bereits vorgemerkt ist
         is_marked = self.manager.is_lead_marked_for_deletion(self.lead.get('lead_id'))
         
+        # Prüfe ob mobile Ansicht (Breite < 600px)
+        is_mobile = self.page.width and self.page.width < 600
+        
         # Button zum Vormerken nur anzeigen wenn:
         # 1. Lead noch offen ist (status_id = 1)
         # 2. Benutzer der Erfasser ist
@@ -596,21 +658,47 @@ class LeadDetailViewStatus:
         # Zeige Info wenn bereits vorgemerkt
         if is_marked:
             header_controls.append(ft.Container(expand=True))  # Spacer
-            header_controls.append(
-                ft.Container(
-                    content=ft.Row([
-                        ft.Icon(ft.Icons.INFO_OUTLINE, color="#dc2626", size=20),
-                        ft.Text("Zum Löschen vorgemerkt", color="#dc2626", size=14, weight=ft.FontWeight.W_500)
-                    ], spacing=8),
-                    bgcolor="#fee2e2",
-                    padding=ft.padding.symmetric(horizontal=12, vertical=8),
-                    border_radius=8,
+            
+            if is_mobile:
+                # Mobile: Nur Info-Icon mit Dialog
+                def show_info_dialog(e):
+                    dialog = ft.AlertDialog(
+                        title=ft.Text("Zum Löschen vorgemerkt"),
+                        content=ft.Text("Dieser Lead ist zum Löschen vorgemerkt. Warte auf Administration."),
+                        actions=[ft.TextButton("OK", on_click=lambda e: self.page.pop_dialog())]
+                    )
+                    self.page.show_dialog(dialog)
+                
+                header_controls.append(
+                    ft.IconButton(
+                        icon=ft.Icons.INFO_OUTLINE,
+                        icon_color="#dc2626",
+                        icon_size=28,
+                        tooltip="Zum Löschen vorgemerkt",
+                        on_click=show_info_dialog,
+                        style=ft.ButtonStyle(
+                            bgcolor="#fee2e2",
+                            shape=ft.RoundedRectangleBorder(radius=8),
+                        )
+                    )
                 )
-            )
+            else:
+                # Desktop: Vollständiges Badge mit Text
+                header_controls.append(
+                    ft.Container(
+                        content=ft.Row([
+                            ft.Icon(ft.Icons.INFO_OUTLINE, color="#dc2626", size=20),
+                            ft.Text("Zum Löschen vorgemerkt", color="#dc2626", size=14, weight=ft.FontWeight.W_500)
+                        ], spacing=8),
+                        bgcolor="#fee2e2",
+                        padding=ft.Padding.symmetric(horizontal=12, vertical=8),
+                        border_radius=8,
+                    )
+                )
         
         header = ft.Container(
             content=ft.Row(header_controls, spacing=10),
-            padding=ft.padding.symmetric(horizontal=30, vertical=20),
+            padding=ft.Padding.symmetric(horizontal=10, vertical=20),
         )
         
         # Lead-Informationen
@@ -633,7 +721,7 @@ class LeadDetailViewStatus:
                     ft.Container(height=20),
                     kommentar_section,
                 ], scroll=ft.ScrollMode.AUTO),
-                padding=ft.padding.symmetric(horizontal=30, vertical=20),
+                padding=ft.Padding.symmetric(horizontal=10, vertical=20),
                 expand=True,
             )
         ], spacing=0, expand=True)
@@ -666,7 +754,7 @@ class LeadDetailViewStatus:
                     ft.Container(
                         content=ft.Text(self.lead.get('status_name', 'Offen'), size=14),
                         bgcolor=status_color,
-                        padding=ft.padding.symmetric(horizontal=15, vertical=8),
+                        padding=ft.Padding.symmetric(horizontal=15, vertical=8),
                         border_radius=20,
                     ),
                 ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
@@ -741,7 +829,7 @@ class LeadDetailViewStatus:
                     ], spacing=2),
                 ], spacing=30, wrap=True),
             ], spacing=10),
-            padding=25,
+            padding=15,
             border_radius=12,
         )
     
@@ -788,7 +876,7 @@ class LeadDetailViewStatus:
                         ], spacing=5),
                         padding=15,
                         border_radius=8,
-                        border=ft.border.all(1, ft.Colors.OUTLINE),
+                        border=ft.Border.all(1, ft.Colors.OUTLINE),
                     )
                 )
             
@@ -800,7 +888,7 @@ class LeadDetailViewStatus:
                 ft.Divider(color="#475569"),
                 content,
             ], spacing=10),
-            padding=25,
+            padding=15,
             border_radius=12,
         )
     
@@ -843,7 +931,7 @@ class LeadDetailViewStatus:
                         content=kommentar_content,
                         padding=15,
                         border_radius=8,
-                        border=ft.border.all(1, ft.Colors.OUTLINE),
+                        border=ft.Border.all(1, ft.Colors.OUTLINE),
                     )
                 )
             
@@ -855,7 +943,7 @@ class LeadDetailViewStatus:
                 ft.Divider(color="#475569"),
                 content,
             ], spacing=10),
-            padding=25,
+            padding=15,
             border_radius=12,
         )
     
@@ -915,7 +1003,7 @@ class LeadDetailViewStatus:
             content=kommentar_field,
             actions=[
                 ft.TextButton("Abbrechen", on_click=cancel_edit),
-                ft.ElevatedButton(
+                ft.Button(
                     "Speichern",
                     bgcolor="#10b981",
                     color="white",
@@ -965,7 +1053,7 @@ class LeadDetailViewStatus:
             ),
             actions=[
                 ft.TextButton("Abbrechen", on_click=cancel_mark),
-                ft.ElevatedButton(
+                ft.Button(
                     "Vormerken",
                     bgcolor="#dc2626",
                     color="white",
