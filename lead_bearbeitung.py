@@ -311,6 +311,8 @@ class LeadBearbeitungView:
         self.page.clean()
         self.leads = self.lead_manager.get_my_leads(self.current_user['benutzer_id'])
     
+        # Mobile detection
+        is_mobile = self.page.width and self.page.width < 600
         
         # Filter die Leads basierend auf aktiven Filtern
         filtered_leads = [lead for lead in self.leads if lead.status_id in self.active_filters]
@@ -322,7 +324,11 @@ class LeadBearbeitungView:
                 icon=ft.Icons.ARROW_BACK,
                 on_click=lambda e: self._go_back_to_menu()
             ),
-            ft.Text(f"Meine Nachrichten ({len(filtered_leads)})", size=24, weight=ft.FontWeight.BOLD),
+            ft.Text(
+                f"Meine Nachrichten ({len(filtered_leads)})", 
+                size=18 if is_mobile else 24, 
+                weight=ft.FontWeight.BOLD
+            ),
             ft.IconButton(
                 icon=ft.Icons.REFRESH,
                 tooltip="Aktualisieren",
@@ -360,7 +366,7 @@ class LeadBearbeitungView:
                     ft.Divider(height=10, color="transparent"),
                     lead_liste
                 ], scroll=ft.ScrollMode.AUTO),
-                padding=20,
+                padding=5 if is_mobile else 20,
                 expand=True
             )
         )
@@ -419,6 +425,9 @@ class LeadBearbeitungView:
     
     def _create_lead_card(self, lead: Lead):
         """Erstellt eine Card für einen Lead"""
+        # Mobile detection
+        is_mobile = self.page.width and self.page.width < 600
+        
         # Status-Farben für Hintergrund
         status_colors = {
             1: ft.Colors.GREEN,          # Offen - grün
@@ -434,7 +443,7 @@ class LeadBearbeitungView:
         status_badge = ft.Container(
             content=ft.Text(lead.status_name, size=12, color="white", weight=ft.FontWeight.BOLD),
             bgcolor=bg_color,
-            padding=ft.padding.symmetric(horizontal=8, vertical=4),
+            padding=ft.Padding.symmetric(horizontal=8, vertical=4),
             border_radius=4
         )
         
@@ -450,11 +459,24 @@ class LeadBearbeitungView:
                     ft.Text("NEU", size=11, color="white", weight=ft.FontWeight.BOLD)
                 ], spacing=3),
                 bgcolor="orange",
-                padding=ft.padding.symmetric(horizontal=6, vertical=3),
+                padding=ft.Padding.symmetric(horizontal=6, vertical=3),
                 border_radius=4,
                 visible=is_new
             )
         ], spacing=10)
+        
+        # Mobile: Status in neuer Zeile, Desktop: Status in gleicher Zeile
+        if is_mobile:
+            subtitle_content = ft.Column([
+                ft.Text(f"{lead.produkt_name}"),
+                ft.Row([ft.Text("Status:"), status_badge], spacing=5)
+            ], spacing=5)
+        else:
+            subtitle_content = ft.Row([
+                ft.Text(f"{lead.produkt_name}"),
+                ft.Text("| Status:"),
+                status_badge
+            ], spacing=5)
         
         return ft.Container(
             content=ft.Card(
@@ -463,11 +485,7 @@ class LeadBearbeitungView:
                         ft.ListTile(
                             leading=ft.Icon(ft.Icons.ASSIGNMENT),
                             title=title_content,
-                            subtitle=ft.Row([
-                                ft.Text(f"{lead.produkt_name}"),
-                                ft.Text("| Status:"),
-                                status_badge
-                            ], spacing=5),
+                            subtitle=subtitle_content,
                         ),
                         ft.Row([
                             ft.Text(f"Erfasst von: {lead.erfasser_name}", size=12, color="grey"),
@@ -612,21 +630,21 @@ class LeadDetailView:
         # Wenn Status "Offen" (1) - zeige Annehmen/Ablehnen/Weiterleiten
         if self.lead.status_id == 1:
             return ft.Row([
-                ft.ElevatedButton(
+                ft.Button(
                     "Annehmen",
                     icon=ft.Icons.CHECK_CIRCLE,
                     on_click=lambda e: self._handle_accept(),
                     bgcolor=ft.Colors.GREEN,
                     color=ft.Colors.WHITE
                 ),
-                ft.ElevatedButton(
+                ft.Button(
                     "Ablehnen",
                     icon=ft.Icons.CANCEL,
                     on_click=lambda e: self._handle_reject(),
                     bgcolor=ft.Colors.RED,
                     color=ft.Colors.WHITE
                 ),
-                ft.ElevatedButton(
+                ft.Button(
                     "Weiterleiten",
                     icon=ft.Icons.FORWARD,
                     on_click=lambda e: self._handle_forward(),
@@ -636,7 +654,7 @@ class LeadDetailView:
         # Wenn Status "In Bearbeitung" (2) - zeige Lead erledigt Button
         elif self.lead.status_id == 2:
             return ft.Row([
-                ft.ElevatedButton(
+                ft.Button(
                     "Lead erledigt",
                     icon=ft.Icons.CHECK_CIRCLE,
                     on_click=lambda e: self._handle_complete(),
@@ -733,7 +751,7 @@ class LeadDetailView:
             ft.Text("Kommentare", size=18, weight=ft.FontWeight.BOLD),
             ft.Column(kommentar_liste) if kommentar_liste else ft.Text("Keine Kommentare", color="grey"),
             kommentar_field if is_active else ft.Container(),  # Kommentarfeld nur für aktive Leads
-            ft.ElevatedButton(
+            ft.Button(
                 button_text,
                 on_click=add_kommentar,
                 disabled=button_disabled
@@ -817,7 +835,7 @@ class LeadDetailView:
         dialog = ft.AlertDialog(
             title=ft.Text("Lead annehmen - Was möchtest du tun?"),
             content=ft.Column([
-                ft.ElevatedButton(
+                ft.Button(
                     content=ft.Column([
                         ft.Icon(ft.Icons.DESCRIPTION, size=32),
                         ft.Text("Angebot erstellen", size=14, weight=ft.FontWeight.BOLD),
@@ -827,7 +845,7 @@ class LeadDetailView:
                     height=100,
                     on_click=on_option_click("offer")
                 ),
-                ft.ElevatedButton(
+                ft.Button(
                     content=ft.Column([
                         ft.Icon(ft.Icons.DOCUMENT_SCANNER, size=32),
                         ft.Text("Besuchsbericht erstellen", size=14, weight=ft.FontWeight.BOLD),
@@ -837,7 +855,7 @@ class LeadDetailView:
                     height=100,
                     on_click=on_option_click("report")
                 ),
-                ft.ElevatedButton(
+                ft.Button(
                     content=ft.Column([
                         ft.Icon(ft.Icons.CHECK_CIRCLE, size=32),
                         ft.Text("Mit Kommentar annehmen", size=14, weight=ft.FontWeight.BOLD),
@@ -989,7 +1007,7 @@ class LeadDetailView:
                         
                         return ft.Container(
                             content=ft.Text(bearbeiter_data['name']),
-                            padding=ft.padding.symmetric(horizontal=12, vertical=8),
+                            padding=ft.Padding.symmetric(horizontal=12, vertical=8),
                             on_click=on_select,
                             ink=True
                         )
