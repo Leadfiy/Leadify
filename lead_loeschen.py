@@ -32,7 +32,7 @@ class LeadLoeschenView:
         tile_bg = "#1e293b" if dark_mode else "#ffffff"
         border_color = "#334155" if dark_mode else "#e2e8f0"
         
-        self.page.bgcolor = bg_color
+        self.page.bgcolor = None
         
         # Leads aus Datenbank laden
         self._load_leads()

@@ -27,7 +27,7 @@ class BenutzerfreigabeView:
         table_bg = "#1e293b" if self.dark_mode else "#ffffff"
         row_hover = "#2d3748" if self.dark_mode else "#f8fafc"
         
-        self.page.bgcolor = bg_color
+        self.page.bgcolor = None
         
         # Header
         header = ft.Container(
