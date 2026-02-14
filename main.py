@@ -900,7 +900,7 @@ class AppController:
                 ink=True,
                 border=ft.border.all(1, ft.Colors.OUTLINE),
             ),
-            padding=ft.padding.symmetric(horizontal=30),
+            padding=ft.Padding.symmetric(horizontal=30),
             alignment=ft.Alignment(0, 0),
         )
         
