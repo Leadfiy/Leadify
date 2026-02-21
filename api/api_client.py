@@ -150,6 +150,162 @@ def is_server_configured():
         return False
 
 
+# ============================================================================
+# DEVICE-ID UND TOKEN MANAGEMENT (Client-seitig)
+# ============================================================================
+
+import uuid
+import platform
+
+
+def get_device_file_path(filename):
+    """Gibt den Pfad zu einer geräte-spezifischen Datei zurück."""
+    try:
+        locations = []
+        
+        # 1. App-spezifisches Datenverzeichnis (Android-freundlich)
+        if 'FLET_APP_STORAGE_DATA' in os.environ:
+            locations.append(Path(os.environ['FLET_APP_STORAGE_DATA']) / filename)
+        
+        # 2. Home-Verzeichnis
+        try:
+            locations.append(Path.home() / f".leadify_{filename}")
+        except:
+            pass
+        
+        # 3. Temporäres Verzeichnis
+        try:
+            import tempfile
+            locations.append(Path(tempfile.gettempdir()) / f".leadify_{filename}")
+        except:
+            pass
+        
+        # 4. Aktuelles Verzeichnis
+        locations.append(Path(f".leadify_{filename}"))
+        
+        # Verwende den ersten verfügbaren/schreibbaren Pfad
+        for location in locations:
+            try:
+                location.parent.mkdir(parents=True, exist_ok=True)
+                if location.exists():
+                    return location
+                # Teste Schreibbarkeit
+                test_file = location.parent / ".test_write"
+                test_file.write_text("test")
+                test_file.unlink()
+                return location
+            except:
+                continue
+        
+        return locations[-1] if locations else Path(f".leadify_{filename}")
+    except Exception as e:
+        print(f"Fehler beim Ermitteln des Device-Pfades: {e}")
+        return Path(f".leadify_{filename}")
+
+
+def get_or_create_device_id():
+    """Generiert oder lädt die eindeutige Device-ID für dieses Gerät."""
+    device_file = get_device_file_path("device_id.json")
+    
+    try:
+        if device_file.exists():
+            with open(device_file, 'r') as f:
+                data = json.load(f)
+                device_id = data.get('device_id')
+                if device_id:
+                    print(f"Device-ID geladen: {device_id[:8]}...")
+                    return device_id
+    except Exception as e:
+        print(f"Fehler beim Laden der Device-ID: {e}")
+    
+    # Neue Device-ID generieren
+    device_id = str(uuid.uuid4())
+    
+    try:
+        device_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(device_file, 'w') as f:
+            json.dump({'device_id': device_id}, f)
+        print(f"✅ Neue Device-ID erstellt: {device_id[:8]}...")
+    except Exception as e:
+        print(f"⚠️ Device-ID konnte nicht gespeichert werden: {e}")
+    
+    return device_id
+
+
+def get_device_name():
+    """Generiert einen lesbaren Gerätenamen."""
+    try:
+        system = platform.system()
+        node = platform.node() or "Unbekannt"
+        
+        if system == "Windows":
+            return f"Windows – {node}"
+        elif system == "Darwin":
+            return f"macOS – {node}"
+        elif system == "Linux":
+            # Android wird als Linux erkannt
+            if 'ANDROID_ROOT' in os.environ or 'ANDROID_DATA' in os.environ:
+                model = os.environ.get('ANDROID_MODEL', 'Android-Gerät')
+                return f"Android – {model}"
+            return f"Linux – {node}"
+        else:
+            return f"{system} – {node}"
+    except:
+        return "Unbekanntes Gerät"
+
+
+def save_session(token, device_id, email):
+    """Speichert Session-Daten lokal (geräte-spezifisch)."""
+    session_file = get_device_file_path("session.json")
+    data = {
+        'token': token,
+        'device_id': device_id,
+        'email': email,
+        'created_at': datetime.now().isoformat()
+    }
+    
+    try:
+        session_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(session_file, 'w') as f:
+            json.dump(data, f)
+        print(f"✅ Session gespeichert für {email}")
+        return True
+    except Exception as e:
+        print(f"⚠️ Session konnte nicht gespeichert werden: {e}")
+        return False
+
+
+def load_session():
+    """Lädt Session-Daten aus lokalem Speicher."""
+    session_file = get_device_file_path("session.json")
+    
+    try:
+        if session_file.exists():
+            with open(session_file, 'r') as f:
+                data = json.load(f)
+                print(f"Session geladen: {data.get('email', 'unbekannt')}")
+                return data
+    except Exception as e:
+        print(f"⚠️ Session konnte nicht geladen werden: {e}")
+    
+    return None
+
+
+def clear_session():
+    """Löscht lokale Session-Daten."""
+    session_file = get_device_file_path("session.json")
+    
+    try:
+        if session_file.exists():
+            os.remove(session_file)
+            print("Session gelöscht")
+            return True
+    except Exception as e:
+        print(f"⚠️ Session konnte nicht gelöscht werden: {e}")
+    
+    return False
+
+
 # Client-Initialisierung - IMMER sicherstellen, dass _client initialisiert ist
 try:
     saved_ip = load_server_ip()
@@ -202,7 +358,12 @@ LeadKommentar = DictProxy
 # ============================================================================
 
 class AuthClient:
-    """Ersetzt AuthManager – ruft /api/auth/* auf."""
+    """Ersetzt AuthManager – ruft /api/auth/* auf und verwaltet Sessions lokal."""
+    
+    def __init__(self):
+        self.device_id = get_or_create_device_id()
+        self.device_name = get_device_name()
+        print(f"🔧 AuthClient initialisiert - {self.device_name} ({self.device_id[:8]}...)")
 
     def register_user(self, email: str, password: str):
         try:
@@ -215,17 +376,45 @@ class AuthClient:
 
     def login_user(self, email: str, password: str):
         try:
-            r = _client.post("/auth/login", json={"email": email, "password": password})
+            r = _client.post("/auth/login", json={
+                "email": email,
+                "password": password,
+                "device_id": self.device_id,
+                "device_name": self.device_name
+            })
             data = r.json()
-            return data["success"], data["message"], data.get("user")
+            
+            if data["success"] and data.get("result"):
+                result = data["result"]
+                # Session lokal speichern
+                save_session(result["token"], result["device_id"], email)
+                return data["success"], data["message"], result.get("user")
+            
+            return data["success"], data["message"], None
         except Exception as e:
             print(f"Fehler bei login_user: {e}")
             return False, f"Verbindungsfehler: {str(e)}", None
 
     def check_auto_login(self):
         try:
-            r = _client.post("/auth/auto-login")
+            # Lokale Session laden
+            session = load_session()
+            
+            if not session or not session.get('token') or not session.get('device_id'):
+                print("ℹ️ Keine lokale Session gefunden")
+                return False, None, "Keine Session gefunden"
+            
+            # Session beim Server validieren
+            r = _client.post("/auth/auto-login", json={
+                "token": session['token'],
+                "device_id": session['device_id']
+            })
             data = r.json()
+            
+            if not data["is_logged_in"]:
+                # Session ungültig - lokal löschen
+                clear_session()
+            
             return data["is_logged_in"], data.get("user"), data["message"]
         except Exception as e:
             print(f"Fehler bei check_auto_login: {e}")
@@ -233,9 +422,22 @@ class AuthClient:
 
     def logout(self):
         try:
-            _client.post("/auth/logout")
+            # Lokale Session laden
+            session = load_session()
+            
+            if session and session.get('token') and session.get('device_id'):
+                # Server-seitig abmelden
+                _client.post("/auth/logout", json={
+                    "token": session['token'],
+                    "device_id": session['device_id']
+                })
+            
+            # Lokal löschen
+            clear_session()
         except Exception as e:
             print(f"Fehler bei logout: {e}")
+            # Trotzdem lokal löschen
+            clear_session()
 
     def change_password(self, benutzer_id: int, old_password: str, new_password: str):
         try:
