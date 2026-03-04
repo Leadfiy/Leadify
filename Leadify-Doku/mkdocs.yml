@@ -1,0 +1,65 @@
+site_name: Leadify Dokumentation
+site_description: Technische Projektdokumentation der Lead-Management-Software Leadify.
+site_url: https://LeadManagementApp-School.github.io/Leadify/
+
+repo_url: https://github.com/LeadManagementApp-School/Leadify
+repo_name: LeadManagementApp-School/Leadify
+
+theme:
+  name: material
+  logo: assets/icon.png
+  favicon: assets/favicon.png
+  features:
+    - navigation.tabs
+    - navigation.top
+    - content.code.copy
+  palette:
+    # Dark Mode
+    - scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Dark mode
+      primary: blue
+      accent: deep purple
+
+    # Light Mode
+    - scheme: default
+      toggle:
+        icon: material/weather-night
+        name: Light mode
+      primary: blue
+      accent: deep orange
+
+  nav:
+  - Benutzerhandbuch:
+      - Übersicht: user-guide/index.md
+      - Registrierung & Login: user-guide/registrierung-login.md
+      - Leads erstellen & zuweisen: user-guide/leads-erstellen.md
+      - Leads bearbeiten: user-guide/leads-bearbeiten.md
+      - Meine Leads: user-guide/meine-leads.md
+      - Reporting: user-guide/reporting.md
+      - Admin Portal: user-guide/admin-portal.md
+
+
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tabbed:
+      alternate_style: true
+
+copyright: Copyright &copy; 2026 Tobias Schadler. Alle Rechte vorbehalten.
