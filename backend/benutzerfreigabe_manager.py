@@ -13,7 +13,7 @@ class BenutzerfreigabeManager:
     
     def get_pending_users(self):
         """
-        Lädt alle Benutzer mit is_approved = 0 und Passwort + Token
+        Lädt alle Benutzer mit is_approved = 0 und Passwort
         
         Returns:
             list: Liste der ausstehenden Benutzer
@@ -24,7 +24,6 @@ class BenutzerfreigabeManager:
                 FROM benutzer 
                 WHERE is_approved = 0 
                 AND passwort_hash IS NOT NULL AND passwort_hash != '' 
-                AND session_token IS NOT NULL AND session_token != ''
                 ORDER BY benutzer_id DESC
             """
             return self.db.fetch_all(sql)

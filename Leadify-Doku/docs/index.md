@@ -99,7 +99,7 @@ Kernfunktionen im Überblick:
 ---
 ## 🔗 Repository
 
-👉 GitHub Repository: [https://github.com/LeadManagementApp-School/Leadify](https://github.com/LeadManagementApp-School/Leadify)
+👉 GitHub Repository: [https://github.com/Leadify-dev-Team/Leadify](https://github.com/Leadify-dev-Team/Leadify)
 
 ---
 

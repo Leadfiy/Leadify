@@ -1,9 +1,9 @@
 site_name: Leadify Dokumentation
 site_description: Technische Projektdokumentation der Lead-Management-Software Leadify.
-site_url: https://LeadManagementApp-School.github.io/Leadify/
+site_url: https://https://leadify-dev-team.github.io/Leadify/
 
-repo_url: https://github.com/LeadManagementApp-School/Leadify
-repo_name: LeadManagementApp-School/Leadify
+repo_url: https://github.com/Leadify-dev-Team/Leadify
+repo_name: Leadify-dev-Team/Leadify
 
 theme:
   name: material
@@ -61,5 +61,8 @@ markdown_extensions:
       alternate_style: true
   - pymdownx.tabbed:
       alternate_style: true
+
+extra_javascript:
+  - javascripts/lightbox.js
 
 copyright: Copyright &copy; 2026 Tobias Schadler. Alle Rechte vorbehalten.
