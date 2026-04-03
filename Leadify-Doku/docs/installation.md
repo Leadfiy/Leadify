@@ -20,7 +20,7 @@ Für einen erfolgreichen Start muss zunächst die Datenbank eingerichtet und ans
 Klonen Sie das Leadify-Repository auf Ihren lokalen Rechner:
 
 ```bash
-git clone https://github.com/LeadManagementApp-School/Leadify.git
+git clone https://github.com/Leadify-dev-Team/Leadify.git
 cd Leadify
 ```
 
@@ -56,7 +56,7 @@ source .venv/bin/activate        # Windows: .venv\Scripts\activate
 
 Leadify speichert alle Daten in einer SQL-Datenbank. Importieren Sie die mitgelieferte Datenbankdatei in Ihr Datenbanksystem und stellen Sie sicher, dass der Datenbankserver aktiv und erreichbar ist.
 
-👉 [Leadify SQL Herunterladen](#)
+👉 [Leadify SQL Herunterladen](downloads/leadify.sql)
 
 ---
 
@@ -123,13 +123,12 @@ Beim ersten Start der Anwendung wird eine **Server-IP-Adresse** abgefragt. Geben
 
     Laden Sie die bereitgestellte `.apk`-Datei herunter und installieren Sie sie auf Ihrem Android-Gerät.
 
-    👉 [APK-Datei herunterladen](#)
+    👉 [APK-Datei herunterladen](https://github.com/Leadify-dev-Team/Leadify/releases/tag/v1.0.0)
 
 === "iOS"
 
-    Laden Sie die bereitgestellte `.ipa`-Datei herunter und installieren Sie sie auf Ihrem iOS-Gerät.
+    ⚠️ Die iOS App befindet sich aktuell noch in Entwicklung und wird nach Fertigstellung hier bereitgestellt. 
 
-    👉 [iOS-App herunterladen](#)
 
 Beim ersten Start wird wieder die **Server-IP-Adresse** abgefragt. Geben Sie hier die IP-Adresse des Rechners ein, auf dem das Backend läuft (z. B. `192.168.178.25`).
 
@@ -149,4 +148,4 @@ ifconfig      # macOS / Linux
 
 ---
 
-Nach erfolgreicher Konfiguration wird der Registrierungs- bzw. Login-Bildschirm von Leadify geladen.
+Nach erfolgreicher Konfiguration wird der Registrierungs- bzw. Login-Bildschirm von Leadify geladen. **Im Benutzerhandbuch finden Sie weitere Informationen zur Registrierung bzw. Login eines Leadify-Benutzers.**
