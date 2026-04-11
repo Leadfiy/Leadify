@@ -39,6 +39,12 @@ theme:
       - Meine Leads: user-guide/meine-leads.md
       - Reporting: user-guide/reporting.md
       - Admin Portal: user-guide/admin-portal.md
+  - Technische Dokumentation:
+      - Datenbankmodell: Technische%20Dokumentation/datenbankmodell.md
+      - Klassendiagramm: Technische%20Dokumentation/klassendiagramm.md
+      - Sequenzdiagramm: Technische%20Dokumentation/uml-diagramm.md
+      - Lead Status: Technische%20Dokumentation/lead_status_doku.md
+      - Technische Architektur: Technische%20Dokumentation/Technische%20Architektur.md
 
 
 markdown_extensions:
