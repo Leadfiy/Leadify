@@ -1,0 +1,1791 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Technische Projektdokumentation der Lead-Management-Software Leadify.">
+      
+      
+      
+        <link rel="canonical" href="https://leadify-dev-team.github.io/Leadify/Technische%20Strategie/">
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../installation/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Technische Strategie - Leadify Dokumentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="deep-purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#technische-strategie" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Leadify Dokumentation" class="md-header__button md-logo" aria-label="Leadify Dokumentation" data-md-component="logo">
+      
+  <img src="../assets/icon.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Leadify Dokumentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Technische Strategie
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="deep-purple"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="deep-orange"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Leadify-dev-Team/Leadify" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Leadify-dev-Team/Leadify
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Leadify
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Technische Strategie
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../installation/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Installation &amp; Inbetriebnahme
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../Technische%20Dokumentation/Technische%20Architektur/" class="md-tabs__link">
+          
+  
+  
+  Technische Dokumentation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../User%20Guide/" class="md-tabs__link">
+          
+  
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Leadify Dokumentation" class="md-nav__button md-logo" aria-label="Leadify Dokumentation" data-md-component="logo">
+      
+  <img src="../assets/icon.png" alt="logo">
+
+    </a>
+    Leadify Dokumentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Leadify-dev-Team/Leadify" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Leadify-dev-Team/Leadify
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Leadify
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Technische Strategie
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Technische Strategie
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-technologie-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Technologie-Stack
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-begrundung-der-technologiewahl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Begründung der Technologiewahl
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Begründung der Technologiewahl">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-flet-frontend-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Flet – Frontend-Framework
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-fastapi-api-schicht" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 FastAPI – API-Schicht
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-mariadb-datenbank" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 MariaDB – Datenbank
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-phpmyadmin-datenbankverwaltung" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 phpMyAdmin – Datenbankverwaltung
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-authentifizierung" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 Authentifizierung
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-herausforderungen-losungen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Herausforderungen &amp; Lösungen
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Herausforderungen &amp; Lösungen">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-lokale-datenbank-keine-entwicklerubergreifende-synchronisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Lokale Datenbank – keine entwicklerübergreifende Synchronisation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-architekturrefactoring-und-mobile-erreichbarkeit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Architekturrefactoring und mobile Erreichbarkeit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-plattformubergreifende-kompatibilitat-desktop-android" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Plattformübergreifende Kompatibilität (Desktop &amp; Android)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-datums-und-zeitzonenbehandlung-zwischen-datenbank-und-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 Datums- und Zeitzonenbehandlung zwischen Datenbank und API
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-gesamtbewertung-der-architekturentscheidungen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Gesamtbewertung der Architekturentscheidungen
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation &amp; Inbetriebnahme
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Technische Dokumentation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Technische Dokumentation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Technische%20Dokumentation/Technische%20Architektur/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Technische Architektur
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Technische%20Dokumentation/aktivit%C3%A4tsdiagramm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Aktivitätsdiagramm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Technische%20Dokumentation/datenbankmodell/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Datenbankmodell
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Technische%20Dokumentation/klassendiagramm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Klassendiagramm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Technische%20Dokumentation/lead_status_doku/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Praxisbeispiel: Lead-Status Modul
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Technische%20Dokumentation/uml-diagramm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sequenzdiagramm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../User%20Guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benutzerhandbuch &amp; User Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../User%20Guide/1.%20Registrierung-Login/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1. Registrierung &amp; Login
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../User%20Guide/2.%20Leads-Erstellen/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2. Leads erstellen
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../User%20Guide/3.%20Leads-Bearbeiten/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3. Leads bearbeiten
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../User%20Guide/4.%20Meine-Leads/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4. Meine Leads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../User%20Guide/5.%20Reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5. Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../User%20Guide/6.%20Admin-Portal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. Admin Portal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-technologie-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Technologie-Stack
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-begrundung-der-technologiewahl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Begründung der Technologiewahl
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Begründung der Technologiewahl">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-flet-frontend-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Flet – Frontend-Framework
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-fastapi-api-schicht" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 FastAPI – API-Schicht
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-mariadb-datenbank" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 MariaDB – Datenbank
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-phpmyadmin-datenbankverwaltung" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 phpMyAdmin – Datenbankverwaltung
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-authentifizierung" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 Authentifizierung
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-herausforderungen-losungen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Herausforderungen &amp; Lösungen
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Herausforderungen &amp; Lösungen">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-lokale-datenbank-keine-entwicklerubergreifende-synchronisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Lokale Datenbank – keine entwicklerübergreifende Synchronisation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-architekturrefactoring-und-mobile-erreichbarkeit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Architekturrefactoring und mobile Erreichbarkeit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-plattformubergreifende-kompatibilitat-desktop-android" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Plattformübergreifende Kompatibilität (Desktop &amp; Android)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-datums-und-zeitzonenbehandlung-zwischen-datenbank-und-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 Datums- und Zeitzonenbehandlung zwischen Datenbank und API
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-gesamtbewertung-der-architekturentscheidungen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Gesamtbewertung der Architekturentscheidungen
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="technische-strategie">Technische Strategie</h1>
+<blockquote>
+<p>Dieser Abschnitt beschreibt die methodischen Entscheidungen hinter dem Technologie-Stack von Leadify,
+begründet die Wahl der eingesetzten Frameworks und Bibliotheken und dokumentiert konkrete
+Herausforderungen sowie die entwickelten Lösungsansätze.</p>
+</blockquote>
+<hr />
+<h2 id="1-technologie-stack">1. Technologie-Stack</h2>
+<table>
+<thead>
+<tr>
+<th>Komponente</th>
+<th>Technologie</th>
+<th>Einsatzbereich</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Frontend / GUI</td>
+<td>Flet (Python)</td>
+<td>Benutzeroberfläche, Desktop &amp; Android</td>
+</tr>
+<tr>
+<td>API-Schicht</td>
+<td>FastAPI (Python)</td>
+<td>HTTP-Schnittstelle zwischen Frontend und Backend</td>
+</tr>
+<tr>
+<td>Backend / Logik</td>
+<td>Python (Manager-Klassen)</td>
+<td>Geschäftslogik, Validierung, Datenbankzugriff</td>
+</tr>
+<tr>
+<td>Datenbank</td>
+<td>MariaDB</td>
+<td>Relationale Datenspeicherung</td>
+</tr>
+<tr>
+<td>DB-Verwaltung</td>
+<td>phpMyAdmin</td>
+<td>Administrationswerkzeug für die Datenbank</td>
+</tr>
+<tr>
+<td>Authentifizierung</td>
+<td>Token-basiert (eigene Implementierung)</td>
+<td>Login, Auto-Login, Geräteverwaltung</td>
+</tr>
+<tr>
+<td>Deployment (Entwicklung)</td>
+<td>Lokaler Server + Tailscale (VPN)</td>
+<td>Erreichbarkeit der API für mobile Endgeräte</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-begrundung-der-technologiewahl">2. Begründung der Technologiewahl</h2>
+<h3 id="21-flet-frontend-framework">2.1 Flet – Frontend-Framework</h3>
+<p><strong>Eingesetzt für:</strong> Aufbau der gesamten Benutzeroberfläche (Desktop und Android)</p>
+<p>Flet wurde als Frontend-Framework gewählt, da es auf Python basiert und damit die im Unterricht
+erworbenen Kenntnisse direkt nutzbar waren. Ein entscheidender Faktor war darüber hinaus,
+dass Flet die Kompilierung einer nativen Android-Anwendung aus einer einzigen Python-Codebasis
+ermöglicht – ohne eine zweite Programmiersprache erlernen zu müssen. Da die Entwicklung einer
+mobilen Anwendung von Anfang an eine zentrale Anforderung des Projekts darstellte, war dies
+ausschlaggebend für die Entscheidung.</p>
+<p><strong>Abwägung gegenüber Alternativen:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Kriterium</th>
+<th>Flet</th>
+<th>Flutter</th>
+<th>React Native</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sprache</td>
+<td>Python (bekannt)</td>
+<td>Dart (unbekannt)</td>
+<td>JavaScript (unbekannt)</td>
+</tr>
+<tr>
+<td>Mobile-Unterstützung</td>
+<td>✓ Android/iOS</td>
+<td>✓ vollständig</td>
+<td>✓ vollständig</td>
+</tr>
+<tr>
+<td>Einarbeitungsaufwand</td>
+<td>gering</td>
+<td>hoch</td>
+<td>hoch</td>
+</tr>
+<tr>
+<td>Python-Integration</td>
+<td>nativ</td>
+<td>nicht möglich</td>
+<td>nicht möglich</td>
+</tr>
+<tr>
+<td>Community / Reife</td>
+<td>wachsend</td>
+<td>etabliert</td>
+<td>etabliert</td>
+</tr>
+</tbody>
+</table>
+<p>Flutter und React Native schieden aus, da beide vollständig fremde Programmiersprachen erfordern
+(Dart bzw. JavaScript), was den Einarbeitungsaufwand im Rahmen des Projektzeitraums erheblich
+erhöht hätte. Flet ermöglichte eine direkte Weiterverwendung der vorhandenen Python-Kenntnisse.</p>
+<p><strong>Bewertung nach Projektanforderungen:</strong></p>
+<ul>
+<li><strong>Wartbarkeit:</strong> Frontend und Backend teilen dieselbe Sprache (Python), was die Codebasis
+  einheitlich und einfacher wartbar macht.</li>
+<li><strong>Skalierbarkeit:</strong> Flet eignet sich gut für mittelgroße Anwendungen; bei sehr hoher Nutzerzahl
+  oder komplexen Animationen stoßen Flutter oder native Ansätze schneller an Grenzen.</li>
+<li><strong>Performance:</strong> Für den geplanten Einsatzbereich (internes CRM-Tool) ausreichend. Komplexe
+  Renderoperationen wurden bewusst vermieden.</li>
+</ul>
+<hr />
+<h3 id="22-fastapi-api-schicht">2.2 FastAPI – API-Schicht</h3>
+<p><strong>Eingesetzt für:</strong> HTTP-Schnittstelle zwischen Frontend und Backend</p>
+<p>FastAPI wurde verhältnismäßig spät im Projektverlauf eingeführt – erst gegen Ende der
+Entwicklungszeit, als die Portierung der Anwendung auf Android in Angriff genommen wurde.
+Die Entscheidung folgte dabei einer bewussten Priorisierung: Zunächst sollte sichergestellt
+werden, dass die Anwendung auf dem Desktop stabil läuft und alle Funktionen vollständig
+implementiert sind. Erst danach wurde die mobile Nutzung als nächster Schritt angegangen,
+was das Architekturrefactoring und die Einführung von FastAPI als Kommunikationsschicht
+nach sich zog (siehe auch <a href="#32-architekturrefactoring-und-mobile-erreichbarkeit">Abschnitt 3.2</a>).</p>
+<p>FastAPI wurde dabei als API-Framework gewählt, da es sich durch hohe Performance, automatische
+Datenvalidierung über Pydantic-Modelle und eine sehr übersichtliche Entwicklererfahrung auszeichnet.
+Besonders relevant war die native Unterstützung von asynchronen Anfragen, was die
+Reaktionsfähigkeit der mobilen Anwendung verbessert.</p>
+<p><strong>Abwägung gegenüber Alternativen:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Kriterium</th>
+<th>FastAPI</th>
+<th>Flask</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Performance</td>
+<td>sehr hoch (ASGI)</td>
+<td>mittel (WSGI)</td>
+</tr>
+<tr>
+<td>Datenvalidierung</td>
+<td>automatisch (Pydantic)</td>
+<td>manuell</td>
+</tr>
+<tr>
+<td>Dokumentation (Swagger)</td>
+<td>automatisch generiert</td>
+<td>nur mit Erweiterungen</td>
+</tr>
+<tr>
+<td>Async-Unterstützung</td>
+<td>nativ</td>
+<td>eingeschränkt</td>
+</tr>
+<tr>
+<td>Einarbeitungsaufwand</td>
+<td>gering</td>
+<td>sehr gering</td>
+</tr>
+<tr>
+<td>Verbreitung im Unterricht</td>
+<td>gering</td>
+<td>gering</td>
+</tr>
+</tbody>
+</table>
+<p>Flask wäre eine naheliegende Alternative gewesen, da es noch einfacher zu starten ist.
+Allerdings fehlen Flask die automatische Validierung und die integrierte API-Dokumentation,
+die FastAPI über Swagger UI automatisch bereitstellt – ein Vorteil, der die Entwicklung
+und das Debugging spürbar beschleunigte. Die Performance-Vorteile durch das ASGI-Protokoll
+kommen insbesondere bei der mobilen Nutzung zum Tragen.</p>
+<p><strong>Bewertung nach Projektanforderungen:</strong></p>
+<ul>
+<li><strong>Wartbarkeit:</strong> Pydantic-Modelle erzwingen klare Datenstrukturen und machen Schnittstellen
+  explizit dokumentiert.</li>
+<li><strong>Skalierbarkeit:</strong> FastAPI ist für deutlich größere Lasten ausgelegt als im aktuellen Projekt
+  benötigt – bietet damit Spielraum für zukünftige Erweiterungen.</li>
+<li><strong>Performance:</strong> Einer der schnellsten Python-Web-Frameworks; für mobile Anfragen mit
+  geringer Latenz gut geeignet.</li>
+</ul>
+<hr />
+<h3 id="23-mariadb-datenbank">2.3 MariaDB – Datenbank</h3>
+<p><strong>Eingesetzt für:</strong> Persistente, relationale Datenspeicherung</p>
+<p>MariaDB wurde gewählt, da relationale Datenbanken bereits im ersten Schuljahr Teil des Unterrichts
+waren und grundlegende SQL-Kenntnisse vorhanden waren. Die relationale Struktur eignet sich
+für das Datenmodell von Leadify sehr gut, da zwischen Leads, Benutzern, Firmen, Produkten
+und Aktionen viele Beziehungen bestehen, die über JOINs effizient abgefragt werden können.</p>
+<p><strong>Abwägung gegenüber Alternativen:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Kriterium</th>
+<th>MariaDB</th>
+<th>SQLite</th>
+<th>PostgreSQL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vorwissen vorhanden</td>
+<td>✓</td>
+<td>teilweise</td>
+<td>✗</td>
+</tr>
+<tr>
+<td>Mehrbenutzer-fähig</td>
+<td>✓</td>
+<td>eingeschränkt</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Netzwerkzugriff</td>
+<td>✓</td>
+<td>✗ (lokal)</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Setup-Aufwand</td>
+<td>gering</td>
+<td>minimal</td>
+<td>mittel</td>
+</tr>
+<tr>
+<td>Kostenlos</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Geeignet für mobile App</td>
+<td>✓</td>
+<td>✗</td>
+<td>✓</td>
+</tr>
+</tbody>
+</table>
+<p>SQLite wurde als mögliche Alternative in Betracht gezogen, schied jedoch aus, da es keinen
+echten Netzwerkzugriff unterstützt – ein K.O.-Kriterium für eine Anwendung, bei der mehrere
+Benutzer gleichzeitig auf dieselbe Datenbank zugreifen und die mobile App über das Netzwerk
+kommuniziert. PostgreSQL wäre eine leistungsfähige Alternative gewesen, allerdings war der
+Setup-Aufwand und das fehlende Vorwissen ein Hinderungsgrund im gegebenen Zeitrahmen.</p>
+<p><strong>Bewertung nach Projektanforderungen:</strong></p>
+<ul>
+<li><strong>Wartbarkeit:</strong> Standardisiertes SQL; einfach zu verstehen, gut dokumentiert.</li>
+<li><strong>Skalierbarkeit:</strong> Für den aktuellen Nutzungsumfang mehr als ausreichend. Bei sehr hohem
+  Concurrent-Load wäre PostgreSQL performanter, was für dieses Projekt jedoch nicht relevant ist.</li>
+<li><strong>Performance:</strong> Für die Abfragelast des Projekts (JOINs über wenige tausend Datensätze)
+  vollständig ausreichend.</li>
+</ul>
+<hr />
+<h3 id="24-phpmyadmin-datenbankverwaltung">2.4 phpMyAdmin – Datenbankverwaltung</h3>
+<p><strong>Eingesetzt für:</strong> Administration, Schemaentwicklung und manuelle Datenpflege</p>
+<p>phpMyAdmin wurde als Verwaltungswerkzeug eingesetzt, da es ebenfalls aus dem Unterricht bekannt
+war und einen einfachen grafischen Zugang zur Datenbank ohne zusätzliche Tools bietet. Es diente
+vor allem in der Entwicklungsphase zur schnellen Überprüfung von Datenbankstrukturen und
+Testdaten.</p>
+<p>Alternativen wie DBeaver oder MySQL Workbench bieten mehr Funktionen für komplexe Datenbankarbeit,
+waren aber für den Einsatzzweck (Schulprojekt, bekannte Umgebung) nicht notwendig.</p>
+<hr />
+<h3 id="25-authentifizierung">2.5 Authentifizierung</h3>
+<p><strong>Eingesetzt für:</strong> Benutzerverwaltung, Login, Auto-Login und Geräteerkennung</p>
+<p>Die Authentifizierung wurde als eigene Implementierung über den <code>AuthManager</code> umgesetzt.
+Token-basiertes Login ermöglicht Auto-Login auf bekannten Geräten über gespeicherte
+Device-IDs und Tokens, ohne dass eine externe Authentifizierungsbibliothek (z. B. OAuth2)
+benötigt wurde.</p>
+<p>Für den Einsatzrahmen des Projekts – ein internes Tool mit überschaubarer Nutzerzahl – war
+eine eigene, schlanke Implementierung wartbarer und transparenter als eine externe Lösung.
+Bei einer späteren Öffnung der Anwendung nach außen wäre die Einführung von OAuth2 oder JWT
+eine sinnvolle Erweiterung.</p>
+<hr />
+<h2 id="3-herausforderungen-losungen">3. Herausforderungen &amp; Lösungen</h2>
+<h3 id="31-lokale-datenbank-keine-entwicklerubergreifende-synchronisation">3.1 Lokale Datenbank – keine entwicklerübergreifende Synchronisation</h3>
+<p><strong>Problem:</strong><br />
+In der frühen Entwicklungsphase lief die MariaDB-Datenbank ausschließlich lokal auf einem
+einzelnen Rechner. Datenbankänderungen (neue Tabellen, Spalten, Testdaten) waren für andere
+Teammitglieder nicht automatisch sichtbar. Jede Schemaänderung musste manuell kommuniziert
+und auf allen Entwicklungsumgebungen nachgezogen werden.</p>
+<p><strong>Lösung:</strong><br />
+Die Datenbankstruktur wurde in SQL-Migrationsskripten festgehalten, sodass Änderungen
+reproduzierbar waren. Für Tests wurde die Datenbank auf einem zentralen Gerät im lokalen
+Netzwerk betrieben, auf das alle Teammitglieder zugreifen konnten.</p>
+<p><strong>Reflexion:</strong><br />
+Langfristig wäre ein gemeinsam gehosteter Entwicklungsserver (z. B. in der Cloud) die
+sauberere Lösung. Im Projektrahmen war der gewählte Ansatz jedoch pragmatisch und ausreichend.</p>
+<hr />
+<h3 id="32-architekturrefactoring-und-mobile-erreichbarkeit">3.2 Architekturrefactoring und mobile Erreichbarkeit</h3>
+<p>Diese beiden Herausforderungen hängen direkt zusammen, da die Notwendigkeit des
+Architekturrefactorings und die Frage der Erreichbarkeit für mobile Endgeräte denselben
+Auslöser hatten: die Entscheidung, Leadify auf Android zu portieren.</p>
+<p><strong>Problem – monolithische Architektur:</strong><br />
+Zu Beginn des Projekts griff das Flet-Frontend direkt auf die Datenbank zu. Präsentationslogik
+und Datenbankabfragen waren in denselben Klassen vermischt. Solange die Anwendung ausschließlich
+auf dem Desktop lief, war dies funktional – die Stabilität und vollständige Implementierung
+aller Features hatte in dieser Phase bewusst Vorrang. Erst als die Portierung auf Android
+in Angriff genommen wurde, offenbarte sich die direkte Datenbankverbindung als K.O.-Kriterium:
+Eine Android-App kann keine direkte MariaDB-Verbindung über das Netzwerk aufbauen.</p>
+<p><strong>Problem – Erreichbarkeit für mobile Endgeräte:</strong><br />
+Gleichzeitig stellte sich die Frage, wie die neu eingeführte FastAPI-Schicht während der
+Testphase vom Smartphone aus erreichbar gemacht werden kann. Der Server lief lokal auf einem
+Entwicklungsrechner, und eine einfache lokale IP-Adresse ist nur im selben WLAN-Netz erreichbar.</p>
+<p><strong>Lösung:</strong><br />
+Die Architektur wurde gezielt in ein Drei-Schichten-Modell überführt:</p>
+<ol>
+<li>Das Frontend wurde auf reine Darstellungslogik reduziert (View-Klassen)</li>
+<li>FastAPI wurde als Kommunikationsschicht eingeführt</li>
+<li>Die Geschäftslogik wurde in Manager-Klassen im Backend ausgelagert</li>
+</ol>
+<p>Für die Erreichbarkeit des lokalen Servers vom Smartphone aus wurde <strong>Tailscale</strong> eingesetzt –
+ein VPN-Dienst, der alle verbundenen Geräte in ein gemeinsames virtuelles Netzwerk einbindet.
+Dadurch war der Entwicklungsrechner mit dem laufenden FastAPI-Server über eine stabile
+Tailscale-IP vom Android-Gerät aus erreichbar, unabhängig davon, in welchem WLAN sich
+die Geräte befanden.</p>
+<p><strong>Reflexion:</strong><br />
+Der späte Zeitpunkt des Refactorings war eine bewusste Projektentscheidung: Erst Stabilität
+und Funktionsumfang sicherstellen, dann die Plattformerweiterung angehen. Dies war pragmatisch
+sinnvoll, bedeutete aber gleichzeitig, dass das Refactoring unter Zeitdruck stattfand.
+Eine frühere Planung der Zielarchitektur hätte diesen Aufwand verteilt. Tailscale erwies sich
+als unkomplizierte und zuverlässige Lösung für die Testphase; für einen produktiven Betrieb
+wäre ein fest adressierbarer Server (VPS oder Cloud-Hosting) die konsequente nächste Stufe.</p>
+<hr />
+<h3 id="34-plattformubergreifende-kompatibilitat-desktop-android">3.4 Plattformübergreifende Kompatibilität (Desktop &amp; Android)</h3>
+<p><strong>Problem:</strong><br />
+Flet verhält sich auf Desktop und Android in einigen Bereichen unterschiedlich – insbesondere
+bei der Darstellung von UI-Elementen, Seitenbreiten und Schriftgrößen. Eine Oberfläche, die
+auf dem Desktop übersichtlich wirkt, konnte auf einem Smartphone-Bildschirm überladen sein.</p>
+<p><strong>Lösung:</strong><br />
+An kritischen Stellen wurde die Bildschirmbreite (<code>page.width</code>) ausgewertet, um zwischen
+mobiler und Desktop-Darstellung zu unterscheiden. Beispielsweise werden in der Lead-Status-Ansicht
+bei schmalen Bildschirmen (&lt; 600 px) nur Icons statt vollständiger Beschriftungen angezeigt:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">is_mobile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">page</span><span class="o">.</span><span class="n">width</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">page</span><span class="o">.</span><span class="n">width</span> <span class="o">&lt;</span> <span class="mi">600</span>
+</span></code></pre></div>
+<p><strong>Reflexion:</strong><br />
+Ein systematisches responsives Layout-Konzept von Beginn an (z. B. konsequente Nutzung von
+relativen Breiten statt fixer Pixelwerte) hätte punktuelle Anpassungen dieser Art reduziert.</p>
+<hr />
+<h3 id="35-datums-und-zeitzonenbehandlung-zwischen-datenbank-und-api">3.5 Datums- und Zeitzonenbehandlung zwischen Datenbank und API</h3>
+<p><strong>Problem:</strong><br />
+MariaDB liefert <code>datetime</code>-Felder als Python-<code>datetime</code>-Objekte zurück. Diese sind nicht
+direkt JSON-serialisierbar, was bei der Übertragung über die API zu Fehlern führte.</p>
+<p><strong>Lösung:</strong><br />
+In den API-Hilfsfunktionen (<code>_lead_to_dict</code>, <code>_rows_to_dicts</code> etc.) werden alle
+<code>datetime</code>-Objekte vor der Rückgabe in ISO-8601-Strings konvertiert:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">datetime</span><span class="p">):</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>        <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+</span></code></pre></div>
+<p>Das Frontend parst diese Strings bei Bedarf zurück in lesbare Datumsformate.</p>
+<hr />
+<h2 id="4-gesamtbewertung-der-architekturentscheidungen">4. Gesamtbewertung der Architekturentscheidungen</h2>
+<table>
+<thead>
+<tr>
+<th>Aspekt</th>
+<th>Bewertung</th>
+<th>Anmerkung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Wartbarkeit</strong></td>
+<td>✓ gut</td>
+<td>Klare Schichtentrennung, einheitliche Sprache (Python)</td>
+</tr>
+<tr>
+<td><strong>Skalierbarkeit</strong></td>
+<td>◑ bedingt</td>
+<td>Für Schulprojekt ausreichend; Cloud-Hosting für Wachstum nötig</td>
+</tr>
+<tr>
+<td><strong>Performance</strong></td>
+<td>✓ ausreichend</td>
+<td>FastAPI + MariaDB bewältigen die projektrelevante Last problemlos</td>
+</tr>
+<tr>
+<td><strong>Einarbeitungsaufwand</strong></td>
+<td>✓ gering</td>
+<td>Alle gewählten Technologien basierten auf vorhandenem Vorwissen</td>
+</tr>
+<tr>
+<td><strong>Mobile-Fähigkeit</strong></td>
+<td>✓ erreicht</td>
+<td>Durch 3-Schichten-Modell und FastAPI realisiert</td>
+</tr>
+<tr>
+<td><strong>Technische Schulden</strong></td>
+<td>⚠ vorhanden</td>
+<td>Lokale DB, kein Cloud-Hosting, kein CI/CD – bewusste Einschränkungen im Projektrahmen</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 Tobias Schadler. Alle Rechte vorbehalten.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.top", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../javascripts/lightbox.js"></script>
+      
+    
+  </body>
+</html>
